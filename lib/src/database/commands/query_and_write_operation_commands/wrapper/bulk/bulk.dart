@@ -443,7 +443,7 @@ abstract class Bulk extends CommandOperation {
         for (Map error
             in writeErrors as Iterable<Map<dynamic, dynamic>>? ?? []) {
           int? selectedKey = 0;
-          for (var key in (origins[batchIndex].keys ?? []) as Iterable) {
+          for (var key in (origins[batchIndex].keys) as Iterable) {
             if (key <= error[keyIndex] && key > selectedKey) {
               selectedKey = key;
             }

@@ -14,7 +14,7 @@ class DistinctOperation extends CommandOperation {
       {this.query,
       DistinctOptions? distinctOptions,
       Map<String, Object?>? rawOptions})
-      : super(collection?.db,
+      : super(collection.db,
             <String, Object?>{...?distinctOptions?.options, ...?rawOptions},
             collection: collection, aspect: Aspect.readOperation);
 

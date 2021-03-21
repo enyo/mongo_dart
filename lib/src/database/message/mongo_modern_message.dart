@@ -197,12 +197,12 @@ class MongoModernMessage extends MongoResponseMessage {
     }
   }
 
-  List<Section> createSections(Map<String, dynamic> doc) {
+  List<Section> createSections(Map<String, dynamic>? doc) {
     var ret = <Section>[];
     var isPulledOutCommand = false;
-    var keys = doc?.keys?.toList();
+    var keys = doc?.keys.toList();
 
-    if (keys == null || keys.isEmpty) {
+    if (doc == null || keys == null || keys.isEmpty) {
       throw MongoDartError(
           'Invalid document received for Mongo Modern Message');
     }

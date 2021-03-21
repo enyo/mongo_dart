@@ -21,8 +21,8 @@ mixin BasicResult {
   bool get success => ok == 1.0;
   bool get failure => ok == 0.0;
 
-  void extractBasic(Map<String, Object?> document) {
-    document ??= <String, Object>{};
+  void extractBasic(Map<String, Object?>? document) {
+    document ??= <String, Object?>{};
     var documentOk = document[keyOk];
     if (documentOk is int) {
       ok = documentOk.toDouble();

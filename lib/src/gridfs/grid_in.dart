@@ -35,7 +35,7 @@ class GridIn extends GridFSFile {
     return result;
   }
 
-  Future<Map<String, dynamic>> saveChunks([int chunkSize = 0]) {
+  Future<Map<String, dynamic>> saveChunks([int? chunkSize]) {
     var futures = <Future>[];
     var completer = Completer<Map<String, dynamic>>();
 
