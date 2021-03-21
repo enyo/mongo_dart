@@ -5,7 +5,7 @@ class _Statics {
   static int get nextRequestId {
     _requestId ??= 1;
 
-    return ++_requestId;
+    return _requestId! + 1;
   }
 }
 

@@ -67,7 +67,6 @@ void _initStatus() {
   var buffer = StringBuffer();
   _waitDbIsmaster(buffer);
   script.writeAsStringSync(buffer.toString());
-  script = null;
 }
 
 ProcessResult _startMongod(int port, [String? rs]) {
@@ -143,8 +142,6 @@ void startRs([int rsLength = RS_LENGTH]) {
   _configureRs(buffer, rsLength);
   _waitRs(buffer);
   script.writeAsStringSync(buffer.toString());
-  script = null;
-
   var port = PORT_BASE + 1;
   var args = ['localhost:$port', DATA_CFG];
   var result = Process.runSync(MONGO, args);
@@ -155,7 +152,6 @@ void startRs([int rsLength = RS_LENGTH]) {
   buffer = StringBuffer();
   _waitRs(buffer);
   script.writeAsStringSync(buffer.toString());
-  script = null;
 
   for (var i = 2; i <= rsLength; i++) {
     var port = PORT_BASE + i;

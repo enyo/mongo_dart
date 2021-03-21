@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:mongo_dart/mongo_dart.dart';
 
 void main() async {
@@ -99,7 +100,7 @@ void main() async {
     /// does the same with updates and deletes.
     /// Please, note that this is the actual implementation.
     /// Do not rely on this logic as it could change in the future.
-    /// 
+    ///
     /// Any error will not stop the execution of other operations.
   ], ordered: false) as FutureOr<BulkWriteResult>);
 

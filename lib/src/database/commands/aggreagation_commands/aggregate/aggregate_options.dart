@@ -107,7 +107,8 @@ class AggregateOptions {
   }
 
   Map<String, Object?> getOptions(Db? db) => <String, Object?>{
-        if (allowDiskUse != null && allowDiskUse!) keyAllowDiskUse: allowDiskUse,
+        if (allowDiskUse != null && allowDiskUse!)
+          keyAllowDiskUse: allowDiskUse,
         if (maxTimeMS != null) keyMaxTimeMS: maxTimeMS,
         if (bypassDocumentValidation != null && bypassDocumentValidation!)
           keyBypassDocumentValidation: bypassDocumentValidation,
@@ -116,6 +117,6 @@ class AggregateOptions {
         if (comment != null) keyComment: comment,
         if (writeConcern != null)
           keyWriteConcern:
-              writeConcern!.asMap(db!.masterConnection?.serverStatus),
+              writeConcern!.asMap(db!.masterConnection!.serverStatus),
       };
 }

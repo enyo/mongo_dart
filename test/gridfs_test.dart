@@ -117,12 +117,6 @@ Future<List<int?>> getInitialState(GridFS gridFS) {
   var futures = <Future<int>>[];
   futures.add(gridFS.files.count());
   futures.add(gridFS.chunks.count());
-  Future.wait(futures).then((List<int> futureResults) {
-    var result = List<int?>(2);
-    result[0] = futureResults[0].toInt();
-    result[1] = futureResults[1].toInt();
-    completer.complete(result);
-  });
   return completer.future;
 }
 

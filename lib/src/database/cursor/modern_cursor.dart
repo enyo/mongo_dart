@@ -101,22 +101,24 @@ class ModernCursor {
   /// Default value is 100 ms
   int tailableRetryInterval = 100;
 
-  Map<String, Object>? _getNextItem() => items.removeFirst() as Map<String, Object>?;
+  Map<String, Object>? _getNextItem() =>
+      items.removeFirst() as Map<String, Object>?;
 
   void extractCursorData(Map<String, Object?> operationReturnMap) {
-    Map<String, Object>? cursorMap = operationReturnMap[keyCursor] as Map<String, Object>?;
+    Map<String, Object>? cursorMap =
+        operationReturnMap[keyCursor] as Map<String, Object>?;
     if (cursorMap == null) {
       throw MongoDartError('The operation type ${operation.runtimeType} '
           'does not return a cursor');
     }
     if (collectionName == null) {
       String? ns = cursorMap[keyNs] as String?;
-      List<String> nsParts = ns?.split('.');
+      List<String> nsParts = ns?.split('.') as List<String>;
       nsParts.removeAt(0);
       collectionName ??= nsParts.join('.');
     }
     var documents = (cursorMap[keyNextBatch] ?? cursorMap[keyFirstBatch] ?? []);
-    for (var doc in documents as Iterable<_>) {
+    for (var doc in documents as Iterable) {
       items.add(doc as Map<String, Object>?);
     }
   }
@@ -149,10 +151,12 @@ class ModernCursor {
     if (result[keyOk] == 0.0) {
       await close();
       throw MongoDartError(result[keyErrmsg] as String?,
-          mongoCode: result[keyCode] as int?, errorCodeName: result[keyCodeName] as String?);
+          mongoCode: result[keyCode] as int?,
+          errorCodeName: result[keyCodeName] as String?);
     }
     Map? cursorMap = result[keyCursor] as Map<dynamic, dynamic>?;
-    cursorId = cursorMap == null ? 0 as BsonLong : BsonLong(cursorMap[keyId] ?? 0);
+    cursorId =
+        cursorMap == null ? 0 as BsonLong : BsonLong(cursorMap[keyId] ?? 0);
     // The result map returns last records while setting cursorId to zero.
     extractCursorData(result);
     if (items.isNotEmpty) {

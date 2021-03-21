@@ -54,14 +54,14 @@ class BulkWriteResult extends AbstractWriteResult {
       }
     }
     if (result.containsKey(keyNModified)) {
-      nModified += result[keyNModified] as int;
+      nModified = nModified! + (result[keyNModified] as int);
     }
     if (result[keyUpserted] != null) {
       nUpserted += (result[keyUpserted] as List).length;
     }
     if (result.containsKey(keyWriteConcernError)) {
-      writeConcernError =
-          WriteConcernError.fromMap(result[keyWriteConcernError] as Map<String, Object>);
+      writeConcernError = WriteConcernError.fromMap(
+          result[keyWriteConcernError] as Map<String, Object>);
     }
     if (result[keyWriteErrors] != null &&
         (result[keyWriteErrors] as List).isNotEmpty) {

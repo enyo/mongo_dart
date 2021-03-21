@@ -442,7 +442,8 @@ class Db {
     });
   }
 
-  Future<Map<String, dynamic>> getLastError([WriteConcern? writeConcern]) async {
+  Future<Map<String, dynamic>> getLastError(
+      [WriteConcern? writeConcern]) async {
     writeConcern ??= _writeConcern;
     if (_masterConnection!.serverCapabilities.supportsOpMsg) {
       return GetLastErrorCommand(this, writeConcern: writeConcern).execute();
@@ -520,7 +521,8 @@ class Db {
     return _collectionsInfoCursor(collectionName);
   }
 
-  Stream<Map<String, dynamic>> _collectionsInfoCursor([String? collectionName]) {
+  Stream<Map<String, dynamic>> _collectionsInfoCursor(
+      [String? collectionName]) {
     var selector = <String, dynamic>{};
     // If we are limiting the access to a specific collection name
     if (collectionName != null) {
@@ -654,7 +656,7 @@ class Db {
       selector['name'] = name;
       var insertMessage = MongoInsertMessage(
           '$databaseName.${DbCommand.SYSTEM_INDEX_COLLECTION}', [selector]);
-      await executeMessage(insertMessage, _writeConcern);
+      executeMessage(insertMessage, _writeConcern);
       return getLastError();
     });
   }

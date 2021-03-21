@@ -47,7 +47,7 @@ class PacketConverter {
     if (len > MAX_DOC_SIZE) {
       throw MongoDartError('Message length $len over maximum document size');
     }
-    messageBuffer = List<int?>(len);
+    messageBuffer = <int?>[];
   }
 
   void handleBody() {

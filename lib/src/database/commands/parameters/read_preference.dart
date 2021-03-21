@@ -101,7 +101,7 @@ class ReadPreference {
 
   factory ReadPreference.fromOptions(Map<String, Object?>? options) {
     if (options == null || options[keyReadPreference] == null) {
-      return null;
+      throw Error();
     }
     dynamic readPreference = options[keyReadPreference];
     if (readPreference is ReadPreferenceMode) {
@@ -120,7 +120,7 @@ class ReadPreference {
       throw UnsupportedError('The "$keyReadPreference" value is of an '
           'unmanaged type ${options[keyReadPreference].runtimeType}');
     }
-    return null;
+    throw Error();
   }
 
   // As in Dart mode is enum, the value is always valid

@@ -15,7 +15,7 @@ abstract class Section {
     } else if (payloadType == MongoModernMessage.documentsPayloadType) {
       return SectionType1.fromDocument(payloadType, data);
     }
-    return null;
+    throw Error();
   }
 
   factory Section.fromBuffer(BsonBinary buffer) {
@@ -26,7 +26,7 @@ abstract class Section {
     } else if (payloadType == MongoModernMessage.documentsPayloadType) {
       return SectionType1(payloadType, Payload1.fromBuffer(buffer));
     }
-    return null;
+    throw Error();
   }
 
   int get byteLength => 1 /* payloadType */ + payload.byteLength;

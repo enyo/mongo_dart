@@ -104,7 +104,8 @@ abstract class Bulk extends CommandOperation {
     }
     deleteOne(DeleteOneStatement(contentMap,
         collation: docMap[bulkCollation] is Map<String, dynamic>
-            ? CollationOptions.fromMap(docMap[bulkCollation] as Map<String, Object>?)
+            ? CollationOptions.fromMap(
+                docMap[bulkCollation] as Map<String, Object>?)
             : docMap[bulkCollation] as CollationOptions?,
         hint: docMap[bulkHint] as String?,
         hintDocument: docMap[bulkHintDocument] as Map<String, Object>?));
@@ -153,7 +154,8 @@ abstract class Bulk extends CommandOperation {
     }
     deleteMany(DeleteManyStatement(contentMap,
         collation: docMap[bulkCollation] is Map<String, dynamic>
-            ? CollationOptions.fromMap(docMap[bulkCollation] as Map<String, Object>?)
+            ? CollationOptions.fromMap(
+                docMap[bulkCollation] as Map<String, Object>?)
             : docMap[bulkCollation] as CollationOptions?,
         hint: docMap[bulkHint] as String?,
         hintDocument: docMap[bulkHintDocument] as Map<String, Object>?));
@@ -222,7 +224,8 @@ abstract class Bulk extends CommandOperation {
     replaceOne(ReplaceOneStatement(filterMap, docMap[bulkReplacement],
         upsert: docMap[bulkUpsert] as bool?,
         collation: docMap[bulkCollation] is Map<String, dynamic>
-            ? CollationOptions.fromMap(docMap[bulkCollation] as Map<String, Object>?)
+            ? CollationOptions.fromMap(
+                docMap[bulkCollation] as Map<String, Object>?)
             : docMap[bulkCollation] as CollationOptions?,
         hint: docMap[bulkHint] as String?,
         hintDocument: docMap[bulkHintDocument] as Map<String, Object>?));
@@ -300,7 +303,8 @@ abstract class Bulk extends CommandOperation {
     updateOne(UpdateOneStatement(filterMap, docMap[bulkUpdate],
         upsert: docMap[bulkUpsert] as bool?,
         collation: docMap[bulkCollation] is Map<String, dynamic>
-            ? CollationOptions.fromMap(docMap[bulkCollation] as Map<String, Object>?)
+            ? CollationOptions.fromMap(
+                docMap[bulkCollation] as Map<String, Object>?)
             : docMap[bulkCollation] as CollationOptions?,
         arrayFilters: docMap[bulkArrayFilters] as List<dynamic>?,
         hint: docMap[bulkHint] as String?,
@@ -376,7 +380,8 @@ abstract class Bulk extends CommandOperation {
     updateMany(UpdateManyStatement(filterMap, docMap[bulkUpdate],
         upsert: docMap[bulkUpsert] as bool?,
         collation: docMap[bulkCollation] is Map<String, dynamic>
-            ? CollationOptions.fromMap(docMap[bulkCollation] as Map<String, Object>?)
+            ? CollationOptions.fromMap(
+                docMap[bulkCollation] as Map<String, Object>?)
             : docMap[bulkCollation] as CollationOptions?,
         arrayFilters: docMap[bulkArrayFilters] as List<dynamic>?,
         hint: docMap[bulkHint] as String?,
@@ -435,9 +440,10 @@ abstract class Bulk extends CommandOperation {
       ret[keyCommandType] = command.keys.first;
       if (ret.containsKey(keyWriteErrors)) {
         List? writeErrors = ret[keyWriteErrors] as List<dynamic>?;
-        for (Map error in writeErrors as Iterable<Map<dynamic, dynamic>>? ?? []) {
+        for (Map error
+            in writeErrors as Iterable<Map<dynamic, dynamic>>? ?? []) {
           int? selectedKey = 0;
-          for (var key in (origins[batchIndex].keys ?? []) as Iterable<_>) {
+          for (var key in (origins[batchIndex].keys ?? []) as Iterable) {
             if (key <= error[keyIndex] && key > selectedKey) {
               selectedKey = key;
             }

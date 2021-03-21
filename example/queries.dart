@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:mongo_dart/mongo_dart.dart';
 
 void main() async {
@@ -16,10 +17,12 @@ void main() async {
   await coll
       .find(where.gt('my_field', 995).sortBy('my_field'))
       .forEach((v) => print(v));
-  var val = await (coll.findOne(where.eq('my_field', 17)) as FutureOr<Map<String, dynamic>>);
+  var val = await (coll.findOne(where.eq('my_field', 17))
+      as FutureOr<Map<String, dynamic>>);
   print('Filtered by my_field=17 $val');
   id = val['_id'] as ObjectId?;
-  val = await (coll.findOne(where.eq('my_field', 17).fields(['str_field'])) as FutureOr<Map<String, dynamic>>);
+  val = await (coll.findOne(where.eq('my_field', 17).fields(['str_field']))
+      as FutureOr<Map<String, dynamic>>);
   print("findOne with fields clause 'str_field' $val");
   val = await (coll.findOne(where.id(id!)) as FutureOr<Map<String, dynamic>>);
   print('Filtered by _id=$id: $val');

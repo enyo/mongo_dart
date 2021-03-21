@@ -1,4 +1,7 @@
-import 'package:basic_utils/basic_utils.dart' show DnsUtils, RRecordType;
+import 'dart:async';
+
+import 'package:basic_utils/basic_utils.dart'
+    show DnsUtils, RRecord, RRecordType;
 import 'package:logging/logging.dart' show Logger;
 import 'package:mongo_dart/mongo_dart.dart' show MongoDartError;
 import 'package:mongo_dart/src/database/utils/check_same_domain.dart';
@@ -26,7 +29,8 @@ Future<List<String>> decodeDnsSeedlist(Uri dnsSeedlistUri) async {
   }
   var additionalParms = records.first.data.replaceAll('"', '');
   records = await (DnsUtils.lookupRecord(
-      '_mongodb._tcp.${dnsSeedlistUri.host}', RRecordType.SRV) as FutureOr<List<RRecord>>);
+          '_mongodb._tcp.${dnsSeedlistUri.host}', RRecordType.SRV)
+      as FutureOr<List<RRecord>>);
   if (records == null) {
     throw MongoDartError('Impossible to contact the DNS server');
   }

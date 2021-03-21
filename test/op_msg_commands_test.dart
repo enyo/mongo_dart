@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:mongo_dart/mongo_dart.dart';
 import 'package:mongo_dart/src/database/cursor/modern_cursor.dart';
 import 'package:mongo_dart/src/database/commands/administration_commands/get_parameter_command/get_parameter_command.dart';
@@ -72,7 +74,8 @@ void main() async {
 
           expect(cursor.state, State.INIT);
 
-          var cursorResult = await (cursor.nextObject() as FutureOr<Map<String, Object>>);
+          var cursorResult =
+              await (cursor.nextObject() as FutureOr<Map<String, Object>>);
           expect(cursor.state, State.OPEN);
           expect(cursor.cursorId.value, isPositive);
           expect(cursorResult['a'], 0);
@@ -167,7 +170,8 @@ void main() async {
 
           expect(cursor.state, State.INIT);
 
-          var cursorResult = await (cursor.nextObject() as FutureOr<Map<String, Object>>);
+          var cursorResult =
+              await (cursor.nextObject() as FutureOr<Map<String, Object>>);
           expect(cursor.state, State.OPEN);
           expect(cursor.cursorId.value, isPositive);
           expect(cursorResult['a'], 0);
@@ -203,7 +207,8 @@ void main() async {
 
           expect(cursor.state, State.INIT);
 
-          var cursorResult = await (cursor.nextObject() as FutureOr<Map<String, Object>>);
+          var cursorResult =
+              await (cursor.nextObject() as FutureOr<Map<String, Object>>);
           expect(cursor.state, State.OPEN);
           expect(cursor.cursorId.value, isPositive);
           expect(cursorResult['a'], 0);

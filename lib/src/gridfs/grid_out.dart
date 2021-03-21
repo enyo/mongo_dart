@@ -1,7 +1,7 @@
 part of mongo_dart;
 
 class GridOut extends GridFSFile {
-  GridOut([Map<String, dynamic> data]) : super(data);
+  GridOut([Map<String, dynamic> data = const {}]) : super(data);
 
   Future writeToFilename(String filename) {
     return writeToFile(File(filename));

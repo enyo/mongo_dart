@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:mongo_dart/mongo_dart.dart';
 
 void main() async {
@@ -11,7 +12,8 @@ void main() async {
   for (var n = 0; n < 1000; n++) {
     await coll.insert({'my_field': n, 'str_field': 'str_$n'});
   }
-  var val = await (coll.findOne({'my_field': 17}) as FutureOr<Map<String, dynamic>>);
+  var val =
+      await (coll.findOne({'my_field': 17}) as FutureOr<Map<String, dynamic>>);
   print('Filtered by my_field=17 $val');
   id = val['_id'] as ObjectId?;
   val = await (coll.findOne({'_id': id}) as FutureOr<Map<String, dynamic>>);

@@ -1,5 +1,6 @@
-@Timeout(Duration(seconds: 30))
+import 'dart:async';
 
+@Timeout(Duration(seconds: 30))
 import 'package:mongo_dart/mongo_dart.dart';
 import 'package:mongo_dart/src/database/cursor/modern_cursor.dart';
 import 'package:mongo_dart/src/database/commands/administration_commands/wrapper/create_collection/create_collection_options.dart';
@@ -228,7 +229,8 @@ void main() async {
 
         expect(cursor.state, State.OPEN);
 
-        var cursorResult = await (cursor.nextObject() as FutureOr<Map<String, Object>>);
+        var cursorResult =
+            await (cursor.nextObject() as FutureOr<Map<String, Object>>);
         expect(cursor.state, State.OPEN);
         expect(cursor.cursorId.value, isPositive);
         expect(cursorResult['a'], 101);
@@ -279,7 +281,8 @@ void main() async {
 
         expect(cursor.state, State.OPEN);
 
-        var cursorResult = await (cursor.nextObject() as FutureOr<Map<String, Object>>);
+        var cursorResult =
+            await (cursor.nextObject() as FutureOr<Map<String, Object>>);
         expect(cursor.state, State.OPEN);
         expect(cursor.cursorId.value, isPositive);
         expect(cursorResult['a'], 101);
@@ -416,7 +419,8 @@ void main() async {
         ]);
 
         var resultList = await stream.toList();
-        if (db!.masterConnection!.serverCapabilities.fcv!.compareTo('4.2') == -1) {
+        if (db!.masterConnection!.serverCapabilities.fcv!.compareTo('4.2') ==
+            -1) {
           if (db!.masterConnection!.serverCapabilities.isShardedCluster) {
             // one command per shard
             expect(resultList, isNotEmpty);

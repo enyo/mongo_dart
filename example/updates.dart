@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:mongo_dart/mongo_dart.dart';
 
 void main() async {
@@ -13,7 +14,8 @@ void main() async {
     {'name': 'd', 'value': 40}
   ];
   await coll.insertAll(toInsert);
-  var v1 = await (coll.findOne({'name': 'c'}) as FutureOr<Map<String, dynamic>>);
+  var v1 =
+      await (coll.findOne({'name': 'c'}) as FutureOr<Map<String, dynamic>>);
   print('Record c: $v1');
   v1['value'] = 31;
   await coll.save(v1);

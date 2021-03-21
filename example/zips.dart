@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:mongo_dart/mongo_dart.dart';
 
 //////Sample is broken now. Mongolab free accounts upgraded to MongoDb 3.0
@@ -21,7 +22,8 @@ void main() async {
           .sortBy('pop', descending: true))
       .forEach(displayZip);
   print('\n******************** Find ZIP for code 78829 (BATESVILLE)');
-  var batesville = await (zips.findOne(where.eq('id', '78829')) as FutureOr<Map<String, dynamic>>);
+  var batesville = await (zips.findOne(where.eq('id', '78829'))
+      as FutureOr<Map<String, dynamic>>);
   displayZip(batesville);
   print('******************** Find 10 ZIP closest to BATESVILLE');
   await zips

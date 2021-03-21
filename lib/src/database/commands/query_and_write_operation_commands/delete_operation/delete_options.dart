@@ -39,7 +39,7 @@ class DeleteOptions {
     }
     return <String, Object?>{
       if (writeConcern != null)
-        keyWriteConcern: writeConcern!.asMap(db.masterConnection?.serverStatus),
+        keyWriteConcern: writeConcern!.asMap(db.masterConnection!.serverStatus),
       if (ordered != null && !ordered!) keyOrdered: ordered,
       if (comment != null) keyComment: comment
     };
