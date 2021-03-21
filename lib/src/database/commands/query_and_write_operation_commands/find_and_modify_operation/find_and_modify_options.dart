@@ -8,7 +8,7 @@ class FindAndModifyOptions {
   /// requirements.
   ///
   /// New in version 3.2.
-  bool bypassDocumentValidation = false;
+  bool? bypassDocumentValidation = false;
 
   /// A document expressing the [write concern](https://docs.mongodb.com/manual/reference/write-concern/). Omit to use the
   /// default write concern.
@@ -18,10 +18,10 @@ class FindAndModifyOptions {
   /// see [Transactions and Write Concern.](https://docs.mongodb.com/manual/core/transactions/#transactions-write-concern)
   ///
   /// New in version 3.2.
-  WriteConcern writeConcern;
+  WriteConcern? writeConcern;
 
   /// Specifies a time limit in milliseconds for processing the operation.
-  final int maxTimeMS;
+  final int? maxTimeMS;
 
   /// Specifies the collation to use for the operation.
   ///
@@ -46,7 +46,7 @@ class FindAndModifyOptions {
   /// for the find and another for the sort.
   ///
   /// New in version 3.4.
-  final CollationOptions collation;
+  final CollationOptions? collation;
 
   /// A user-provided comment to attach to this command. Once set,
   /// this comment appears alongside records of this command in the
@@ -59,7 +59,7 @@ class FindAndModifyOptions {
   /// any valid BSON type
   ///
   /// New in version 4.4.
-  final String comment;
+  final String? comment;
 
   FindAndModifyOptions(
       {this.bypassDocumentValidation,
@@ -69,19 +69,19 @@ class FindAndModifyOptions {
       this.comment}) {
     bypassDocumentValidation ??= false;
 
-    if (maxTimeMS != null && maxTimeMS < 1) {
+    if (maxTimeMS != null && maxTimeMS! < 1) {
       throw MongoDartError('MaxTimeMS parameter must be a positive value');
     }
   }
 
-  Map<String, Object> getOptions(Db db) => <String, Object>{
-        if (bypassDocumentValidation)
+  Map<String, Object?> getOptions(Db db) => <String, Object?>{
+        if (bypassDocumentValidation!)
           keyBypassDocumentValidation: bypassDocumentValidation,
         if (writeConcern != null)
           keyWriteConcern:
-              writeConcern.asMap(db.masterConnection?.serverStatus),
+              writeConcern!.asMap(db.masterConnection?.serverStatus),
         if (maxTimeMS != null) keyMaxTimeMS: maxTimeMS,
-        if (collation != null) keyCollation: collation.options,
+        if (collation != null) keyCollation: collation!.options,
         if (comment != null) keyComment: comment,
       };
 }

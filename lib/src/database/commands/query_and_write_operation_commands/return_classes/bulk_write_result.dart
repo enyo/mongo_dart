@@ -8,11 +8,11 @@ import 'upserted_info.dart';
 class BulkWriteResult extends AbstractWriteResult {
   List<UpsertedInfo> upserted = [];
   List<BulkWriteError> writeErrors = [];
-  List ids;
-  List<Map<String, Object>> documents;
+  List? ids;
+  late List<Map<String, Object?>> documents;
 
   BulkWriteResult.fromMap(
-      WriteCommandType writeCommandType, Map<String, Object> result)
+      WriteCommandType writeCommandType, Map<String, Object?> result)
       : super.fromMap(writeCommandType, result) {
     if (result[keyWriteErrors] != null &&
         (result[keyWriteErrors] as List).isNotEmpty) {
@@ -30,38 +30,38 @@ class BulkWriteResult extends AbstractWriteResult {
   int get writeErrorsNumber => writeErrors.length;
 
   void mergeFromMap(
-      WriteCommandType writeCommandType, Map<String, Object> result) {
+      WriteCommandType writeCommandType, Map<String, Object?> result) {
     if (this.writeCommandType != writeCommandType) {
       this.writeCommandType = null;
     }
     serverResponses.add(result);
     if (result[keyOk] == 0.0) {
-      ok = result[keyOk];
+      ok = result[keyOk] as double?;
     }
     // When there is an error (such that 'ok' == 0.0), the 'n' element
     // is not returned
     if (result.containsKey(keyN)) {
       switch (writeCommandType) {
         case WriteCommandType.insert:
-          nInserted += result[keyN];
+          nInserted += result[keyN] as int;
           break;
         case WriteCommandType.update:
-          nMatched += result[keyN];
+          nMatched += result[keyN] as int;
           break;
         case WriteCommandType.delete:
-          nRemoved += result[keyN];
+          nRemoved += result[keyN] as int;
           break;
       }
     }
     if (result.containsKey(keyNModified)) {
-      nModified += result[keyNModified];
+      nModified += result[keyNModified] as int;
     }
     if (result[keyUpserted] != null) {
       nUpserted += (result[keyUpserted] as List).length;
     }
     if (result.containsKey(keyWriteConcernError)) {
       writeConcernError =
-          WriteConcernError.fromMap(result[keyWriteConcernError]);
+          WriteConcernError.fromMap(result[keyWriteConcernError] as Map<String, Object>);
     }
     if (result[keyWriteErrors] != null &&
         (result[keyWriteErrors] as List).isNotEmpty) {

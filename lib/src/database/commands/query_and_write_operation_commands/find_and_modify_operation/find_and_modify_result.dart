@@ -4,18 +4,18 @@ import 'package:mongo_dart/src/database/commands/mixin/timing_result.dart';
 import 'package:mongo_dart/src/database/utils/map_keys.dart';
 
 class FindAndModifyResult with BasicResult, TimingResult {
-  FindAndModifyResult(Map<String, Object> document) {
+  FindAndModifyResult(Map<String, Object?> document) {
     if (document != null) {
       extractBasic(document);
       extractTiming(document);
-      value = document[keyValue];
-      lastErrorObject = LastErrorObject.fromMap(document[keyLastErrorObject]);
+      value = document[keyValue] as Map<dynamic, dynamic>?;
+      lastErrorObject = LastErrorObject.fromMap(document[keyLastErrorObject] as Map<dynamic, dynamic>?);
     }
     serverResponse = document;
   }
 
   /// This is the original response from the server;
-  Map<String, Object> serverResponse;
+  Map<String, Object?>? serverResponse;
 
   /// Contains the command’s returned value.
   /// For remove operations, value contains the removed document if
@@ -30,7 +30,7 @@ class FindAndModifyResult with BasicResult, TimingResult {
   ///   * the modified document if the query returns a match;
   ///   * the inserted document if upsert: true and no document matches the query;
   ///   * otherwise, null.
-  Map value;
+  Map? value;
 
-  LastErrorObject lastErrorObject;
+  late LastErrorObject lastErrorObject;
 }

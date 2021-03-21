@@ -7,10 +7,10 @@ import 'package:mongo_dart/src/database/utils/map_keys.dart';
 var _command = <String, Object>{keyServerStatus: 1};
 
 class ServerStatusCommand extends CommandOperation {
-  ServerStatusCommand(Db db,
-      {ServerStatusOptions serverStatusOptions, Map<String, Object> rawOptions})
+  ServerStatusCommand(Db? db,
+      {ServerStatusOptions? serverStatusOptions, Map<String, Object?>? rawOptions})
       : super(db,
-            <String, Object>{...?serverStatusOptions?.options, ...?rawOptions},
+            <String, Object?>{...?serverStatusOptions?.options, ...?rawOptions},
             command: _command);
 
   Future<ServerStatusResult> executeDocument() async {

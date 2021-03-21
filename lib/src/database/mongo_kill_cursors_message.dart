@@ -1,7 +1,7 @@
 part of mongo_dart;
 
 class MongoKillCursorsMessage extends MongoMessage {
-  int cursorId;
+  int? cursorId;
 
   MongoKillCursorsMessage(this.cursorId) {
     opcode = MongoMessage.KillCursors;
@@ -18,7 +18,7 @@ class MongoKillCursorsMessage extends MongoMessage {
     writeMessageHeaderTo(buffer);
     buffer.writeInt(0);
     buffer.writeInt(1);
-    buffer.writeInt64(cursorId);
+    buffer.writeInt64(cursorId!);
     buffer.offset = 0;
     return buffer;
   }

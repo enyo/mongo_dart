@@ -7,10 +7,10 @@ import 'delete_one_options.dart';
 import 'delete_one_statement.dart';
 
 class DeleteOneOperation extends DeleteOperation {
-  DeleteOneStatement deleteRequest;
+  DeleteOneStatement? deleteRequest;
 
   DeleteOneOperation(DbCollection collection, DeleteOneStatement deleteRequest,
-      {DeleteOneOptions deleteOneOptions, Map<String, Object> rawOptions})
+      {DeleteOneOptions? deleteOneOptions, Map<String, Object?>? rawOptions})
       : super(
           collection,
           [deleteRequest],

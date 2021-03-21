@@ -12,7 +12,7 @@ typedef _DbFactory = FutureOr<Db> Function();
 class ConnectionPool {
   final List<Db> _connections = [];
   int _index = 0;
-  Pool _pool;
+  late Pool _pool;
 
   /// The maximum number of concurrent connections allowed.
   final int maxConnections;

@@ -22,18 +22,18 @@ class WriteConcern {
 
   /// Specifies a timeout for this Write Concern in milliseconds,
   /// or infinite if equal to 0.
-  final int wtimeout;
+  final int? wtimeout;
 
   /// Enables or disable fsync() operation before acknowledgement of
   /// the requested write operation.
   /// If [true], wait for mongod instance to write data to disk before returning.
-  final bool fsync;
+  final bool? fsync;
 
   /// Enables or disable journaling of the requested write operation before
   /// acknowledgement.
   /// If [true], wait for mongod instance to write data to the on-disk journal
   /// before returning.
-  final bool j;
+  final bool? j;
 
   /// A string value indicating where the write concern originated
   /// (known as write concern provenance). The following table shows the
@@ -53,7 +53,7 @@ class WriteConcern {
   ///
   /// This field is *only* set by the database when the Write concern is
   /// returned in a writeConcernError. It is **NOT** to be sent to the server
-  final String provenance;
+  final String? provenance;
 
   /// Creates a WriteConcern object
   const WriteConcern(
@@ -61,10 +61,10 @@ class WriteConcern {
 
   WriteConcern.fromMap(Map<String, Object> writeConcernMap)
       : w = writeConcernMap[keyW],
-        wtimeout = writeConcernMap[keyWtimeout],
-        fsync = writeConcernMap[keyFsync],
-        j = writeConcernMap[keyJ],
-        provenance = writeConcernMap[keyProvenance];
+        wtimeout = writeConcernMap[keyWtimeout] as int?,
+        fsync = writeConcernMap[keyFsync] as bool?,
+        j = writeConcernMap[keyJ] as bool?,
+        provenance = writeConcernMap[keyProvenance] as String?;
 
   /// No exceptions are raised, even for network issues.
   @deprecated
@@ -132,8 +132,8 @@ class WriteConcern {
   /// "fsync means sync using a journal if present otherwise the datafiles")
   /// In 4.0 journal cannot be disabled on wiredTiger engine
   /// In 4.2 only wiredTiger can be used
-  Map<String, Object> asMap(ServerStatus serverStatus) {
-    var ret = <String, Object>{};
+  Map<String, Object?> asMap(ServerStatus serverStatus) {
+    var ret = <String, Object?>{};
     if (w != null) {
       ret[keyW] = w;
     }
@@ -169,22 +169,22 @@ class Db {
   final List<String> _uriList = <String>[];
 
   State state = State.INIT;
-  String databaseName;
-  String _debugInfo;
-  Db authSourceDb;
-  _ConnectionManager _connectionManager;
+  String? databaseName;
+  String? _debugInfo;
+  Db? authSourceDb;
+  _ConnectionManager? _connectionManager;
 
-  Connection get _masterConnection => _connectionManager.masterConnection;
+  Connection? get _masterConnection => _connectionManager!.masterConnection;
 
-  Connection get _masterConnectionVerified {
+  Connection? get _masterConnectionVerified {
     if (state != State.OPEN) {
       throw MongoDartError('Db is in the wrong state: ${state}');
     }
-    return _connectionManager.masterConnectionVerified;
+    return _connectionManager!.masterConnectionVerified;
   }
 
-  WriteConcern _writeConcern;
-  AuthenticationScheme _authenticationScheme;
+  WriteConcern? _writeConcern;
+  AuthenticationScheme? _authenticationScheme;
   ReadPreference readPreference = ReadPreference.primary;
 
   @override
@@ -227,7 +227,7 @@ class Db {
   /// This is an asynchronous constructor.
   /// In order to resolve the Seedlist, a call to a DNS server is needed
   /// If the DNS server is unreachable, the constructor throws an error.
-  static Future<Db> create(String uriString, [String _debugInfo]) async {
+  static Future<Db> create(String uriString, [String? _debugInfo]) async {
     if (uriString.startsWith('mongodb://')) {
       return Db(uriString, _debugInfo);
     } else if (uriString.startsWith('mongodb+srv://')) {
@@ -239,13 +239,13 @@ class Db {
     }
   }
 
-  WriteConcern get writeConcern => _writeConcern;
+  WriteConcern? get writeConcern => _writeConcern;
 
-  Connection get masterConnection => _connectionManager.masterConnection;
+  Connection? get masterConnection => _connectionManager!.masterConnection;
 
   List<String> get uriList => _uriList.toList();
 
-  ServerConfig _parseUri(String uriString, {bool isSecure}) {
+  ServerConfig _parseUri(String uriString, {bool? isSecure}) {
     isSecure ??= false;
     var uri = Uri.parse(uriString);
 
@@ -310,7 +310,7 @@ class Db {
   }
 
   Future<MongoReplyMessage> queryMessage(MongoMessage queryMessage,
-      {Connection connection}) {
+      {Connection? connection}) {
     return Future.sync(() {
       if (state != State.OPEN) {
         throw MongoDartError('Db is in the wrong state: $state');
@@ -318,12 +318,12 @@ class Db {
 
       connection ??= _masterConnectionVerified;
 
-      return connection.query(queryMessage);
+      return connection!.query(queryMessage);
     });
   }
 
-  void executeMessage(MongoMessage message, WriteConcern writeConcern,
-      {Connection connection}) {
+  void executeMessage(MongoMessage message, WriteConcern? writeConcern,
+      {Connection? connection}) {
     if (state != State.OPEN) {
       throw MongoDartError('DB is not open. $state');
     }
@@ -332,22 +332,22 @@ class Db {
 
     writeConcern ??= _writeConcern;
 
-    connection.execute(message, writeConcern == WriteConcern.ERRORS_IGNORED);
+    connection!.execute(message, writeConcern == WriteConcern.ERRORS_IGNORED);
   }
 
-  Future<Map<String, Object>> executeModernMessage(MongoModernMessage message,
-      {Connection connection}) async {
+  Future<Map<String, Object?>> executeModernMessage(MongoModernMessage message,
+      {Connection? connection}) async {
     if (state != State.OPEN) {
       throw MongoDartError('DB is not open. $state');
     }
-    if (!_masterConnection.serverCapabilities.supportsOpMsg) {
+    if (!_masterConnection!.serverCapabilities.supportsOpMsg) {
       throw MongoDartError('The "modern message" can only be executed '
           'starting from release 3.6');
     }
 
     connection ??= _masterConnectionVerified;
 
-    var response = await connection.executeModernMessage(message);
+    var response = await connection!.executeModernMessage(message);
 
     var section = response.sections.firstWhere((Section _section) =>
         _section.payloadType == MongoModernMessage.basePayloadType);
@@ -366,13 +366,13 @@ class Db {
     _connectionManager = _ConnectionManager(this);
 
     for (var uri in _uriList) {
-      _connectionManager.addConnection(_parseUri(uri, isSecure: secure));
+      _connectionManager!.addConnection(_parseUri(uri, isSecure: secure));
     }
     try {
-      await _connectionManager.open(writeConcern);
+      await _connectionManager!.open(writeConcern);
     } catch (e) {
       state = State.INIT;
-      await _connectionManager.close();
+      await _connectionManager!.close();
       rethrow;
     }
   }
@@ -385,12 +385,12 @@ class Db {
       state == State.OPEN && (_masterConnection?.connected ?? false);
 
   Future<Map<String, dynamic>> executeDbCommand(MongoMessage message,
-      {Connection connection}) async {
+      {Connection? connection}) async {
     connection ??= _masterConnectionVerified;
 
     var result = Completer<Map<String, dynamic>>();
 
-    var replyMessage = await connection.query(message);
+    var replyMessage = await connection!.query(message);
     var firstRepliedDocument = replyMessage.documents[0];
     var errorMessage = '';
 
@@ -407,7 +407,7 @@ class Db {
     } else if (documentIsNotAnError(firstRepliedDocument)) {
       result.complete(firstRepliedDocument);
     } else {
-      result.completeError(firstRepliedDocument);
+      result.completeError(firstRepliedDocument!);
     }
     return result.future;
   }
@@ -433,7 +433,7 @@ class Db {
   }
 
   Future<Map<String, dynamic>> removeFromCollection(String collectionName,
-      [Map<String, dynamic> selector = const {}, WriteConcern writeConcern]) {
+      [Map<String, dynamic> selector = const {}, WriteConcern? writeConcern]) {
     return Future.sync(() {
       executeMessage(
           MongoRemoveMessage('$databaseName.$collectionName', selector),
@@ -442,27 +442,27 @@ class Db {
     });
   }
 
-  Future<Map<String, dynamic>> getLastError([WriteConcern writeConcern]) async {
+  Future<Map<String, dynamic>> getLastError([WriteConcern? writeConcern]) async {
     writeConcern ??= _writeConcern;
-    if (_masterConnection.serverCapabilities.supportsOpMsg) {
+    if (_masterConnection!.serverCapabilities.supportsOpMsg) {
       return GetLastErrorCommand(this, writeConcern: writeConcern).execute();
     } else {
       return executeDbCommand(
-          DbCommand.createGetLastErrorCommand(this, writeConcern));
+          DbCommand.createGetLastErrorCommand(this, writeConcern!));
     }
   }
 
-  Future<Map<String, dynamic>> getNonce({Connection connection}) {
+  Future<Map<String, dynamic>> getNonce({Connection? connection}) {
     return executeDbCommand(DbCommand.createGetNonceCommand(this),
         connection: connection);
   }
 
-  Future<Map<String, dynamic>> getBuildInfo({Connection connection}) {
+  Future<Map<String, dynamic>> getBuildInfo({Connection? connection}) {
     return executeDbCommand(DbCommand.createBuildInfoCommand(this),
         connection: connection);
   }
 
-  Future<Map<String, dynamic>> isMaster({Connection connection}) {
+  Future<Map<String, dynamic>> isMaster({Connection? connection}) {
     return executeDbCommand(DbCommand.createIsMasterCommand(this),
         connection: connection);
   }
@@ -474,7 +474,7 @@ class Db {
   Future close() {
     _log.fine(() => '$this closed');
     state = State.CLOSED;
-    var _cm = _connectionManager;
+    var _cm = _connectionManager!;
     _connectionManager = null;
     return _cm.close();
   }
@@ -495,7 +495,7 @@ class Db {
 
   Stream<Map<String, dynamic>> _listCollectionsCursor(
       [Map<String, dynamic> filter = const {}]) {
-    if (_masterConnection.serverCapabilities.listCollections) {
+    if (_masterConnection!.serverCapabilities.listCollections) {
       return ListCollectionsCursor(this, filter).stream;
     } else {
       // Using system collections (pre v3.0 API)
@@ -516,11 +516,11 @@ class Db {
   /// with WiredTiger
   /// Use `getCollectionInfos` instead
   @deprecated
-  Stream<Map<String, dynamic>> collectionsInfoCursor([String collectionName]) {
+  Stream<Map<String, dynamic>> collectionsInfoCursor([String? collectionName]) {
     return _collectionsInfoCursor(collectionName);
   }
 
-  Stream<Map<String, dynamic>> _collectionsInfoCursor([String collectionName]) {
+  Stream<Map<String, dynamic>> _collectionsInfoCursor([String? collectionName]) {
     var selector = <String, dynamic>{};
     // If we are limiting the access to a specific collection name
     if (collectionName != null) {
@@ -540,8 +540,8 @@ class Db {
   Future<List<String>> listCollections() {
     return _collectionsInfoCursor()
         .map((map) => map['name']?.toString()?.split('.'))
-        .where((arr) => arr.length == 2)
-        .map((arr) => arr.last)
+        .where((arr) => arr!.length == 2)
+        .map((arr) => arr!.last)
         .toList();
   }
 
@@ -550,28 +550,28 @@ class Db {
     return _listCollectionsCursor(filter).toList();
   }
 
-  Future<List<String>> getCollectionNames(
+  Future<List<String?>> getCollectionNames(
       [Map<String, dynamic> filter = const {}]) {
     return _listCollectionsCursor(filter)
         .map((map) => map['name']?.toString())
         .toList();
   }
 
-  Future<bool> authenticate(String userName, String password,
-      {Connection connection}) async {
+  Future<bool> authenticate(String? userName, String? password,
+      {Connection? connection}) async {
     var credential = UsernamePasswordCredential()
       ..username = userName
       ..password = password;
 
-    (connection ?? _masterConnection).serverConfig.userName ??= userName;
-    (connection ?? _masterConnection).serverConfig.password ??= password;
+    (connection ?? _masterConnection)!.serverConfig!.userName ??= userName;
+    (connection ?? _masterConnection)!.serverConfig!.password ??= password;
 
     var authenticator =
         createAuthenticator(_authenticationScheme, this, credential);
 
     await authenticator.authenticate(connection ?? _masterConnection);
 
-    (connection ?? _masterConnection).serverConfig.isAuthenticated = true;
+    (connection ?? _masterConnection)!.serverConfig!.isAuthenticated = true;
     return true;
   }
 
@@ -579,7 +579,7 @@ class Db {
   /// with WiredTiger
   /// Use `DbCollection.getIndexes()` instead
   @deprecated
-  Future<List> indexInformation([String collectionName]) {
+  Future<List> indexInformation([String? collectionName]) {
     var selector = {};
 
     if (collectionName != null) {
@@ -607,15 +607,15 @@ class Db {
   }
 
   Future<Map<String, dynamic>> createIndex(String collectionName,
-      {String key,
-      Map<String, dynamic> keys,
-      bool unique,
-      bool sparse,
-      bool background,
-      bool dropDups,
-      Map<String, dynamic> partialFilterExpression,
-      String name}) {
-    if (_masterConnection.serverCapabilities.supportsOpMsg) {
+      {String? key,
+      Map<String, dynamic>? keys,
+      bool? unique,
+      bool? sparse,
+      bool? background,
+      bool? dropDups,
+      Map<String, dynamic>? partialFilterExpression,
+      String? name}) {
+    if (_masterConnection!.serverCapabilities.supportsOpMsg) {
       return collection(collectionName).createIndex(
           key: key,
           keys: keys,
@@ -650,7 +650,7 @@ class Db {
       if (partialFilterExpression != null) {
         selector['partialFilterExpression'] = partialFilterExpression;
       }
-      name ??= _createIndexName(keys);
+      name ??= _createIndexName(keys!);
       selector['name'] = name;
       var insertMessage = MongoInsertMessage(
           '$databaseName.${DbCommand.SYSTEM_INDEX_COLLECTION}', [selector]);
@@ -659,7 +659,7 @@ class Db {
     });
   }
 
-  Map<String, dynamic> _setKeys(String key, Map<String, dynamic> keys) {
+  Map<String, dynamic> _setKeys(String? key, Map<String, dynamic>? keys) {
     if (key != null && keys != null) {
       throw ArgumentError('Only one parameter must be set: key or keys');
     }
@@ -677,14 +677,14 @@ class Db {
   }
 
   Future ensureIndex(String collectionName,
-      {String key,
-      Map<String, dynamic> keys,
-      bool unique,
-      bool sparse,
-      bool background,
-      bool dropDups,
-      Map<String, dynamic> partialFilterExpression,
-      String name}) async {
+      {String? key,
+      Map<String, dynamic>? keys,
+      bool? unique,
+      bool? sparse,
+      bool? background,
+      bool? dropDups,
+      Map<String, dynamic>? partialFilterExpression,
+      String? name}) async {
     keys = _setKeys(key, keys);
     var indexInfos = await collection(collectionName).getIndexes();
 
@@ -710,7 +710,7 @@ class Db {
   }
 
   Future<Map<String, dynamic>> _getAcknowledgement(
-      {WriteConcern writeConcern}) {
+      {WriteConcern? writeConcern}) {
     writeConcern ??= _writeConcern;
 
     if (writeConcern == WriteConcern.ERRORS_IGNORED) {
@@ -728,9 +728,9 @@ class Db {
   /// connection.
   ///
   /// Only works from version 3.6
-  Future<Map<String, Object>> serverStatus(
-      {Map<String, Object> options}) async {
-    if (!_masterConnection.serverCapabilities.supportsOpMsg) {
+  Future<Map<String, Object?>> serverStatus(
+      {Map<String, Object>? options}) async {
+    if (!_masterConnection!.serverCapabilities.supportsOpMsg) {
       return <String, Object>{};
     }
     var operation = ServerStatusCommand(this,
@@ -739,9 +739,9 @@ class Db {
   }
 
   /// This method explicitly creates a collection
-  Future<Map<String, Object>> createCollection(String name,
-      {CreateCollectionOptions createCollectionOptions,
-      Map<String, Object> rawOptions}) async {
+  Future<Map<String, Object?>> createCollection(String name,
+      {CreateCollectionOptions? createCollectionOptions,
+      Map<String, Object?>? rawOptions}) async {
     var command = CreateCollectionCommand(this, name,
         createCollectionOptions: createCollectionOptions,
         rawOptions: rawOptions);
@@ -749,10 +749,10 @@ class Db {
   }
 
   /// This method creates a view
-  Future<Map<String, Object>> createView(
+  Future<Map<String, Object?>> createView(
       String view, String source, List pipeline,
-      {CreateViewOptions createViewOptions,
-      Map<String, Object> rawOptions}) async {
+      {CreateViewOptions? createViewOptions,
+      Map<String, Object?>? rawOptions}) async {
     var command = CreateViewCommand(this, view, source, pipeline,
         createViewOptions: createViewOptions, rawOptions: rawOptions);
     return command.execute();
@@ -762,13 +762,13 @@ class Db {
   /// underlying collection. For aggregations on collection data,
   /// see `dbcollection.modernAggregate()`.
   Stream<Map<String, dynamic>> aggregate(List<Map<String, Object>> pipeline,
-      {bool explain,
-      Map<String, Object> cursor,
-      String hint,
-      Map<String, Object> hintDocument,
-      AggregateOptions aggregateOptions,
-      Map<String, Object> rawOptions}) {
-    if (!_masterConnection.serverCapabilities.supportsOpMsg) {
+      {bool? explain,
+      Map<String, Object>? cursor,
+      String? hint,
+      Map<String, Object>? hintDocument,
+      AggregateOptions? aggregateOptions,
+      Map<String, Object?>? rawOptions}) {
+    if (!_masterConnection!.serverCapabilities.supportsOpMsg) {
       throw MongoDartError('At least MongoDb version 3.6 is required '
           'to run the aggregate operation');
     }

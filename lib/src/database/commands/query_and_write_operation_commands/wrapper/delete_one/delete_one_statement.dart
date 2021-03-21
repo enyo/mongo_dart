@@ -3,9 +3,9 @@ import 'package:mongo_dart/src/database/commands/parameters/collation_options.da
 
 class DeleteOneStatement extends DeleteStatement {
   DeleteOneStatement(Map<String, Object> filter,
-      {CollationOptions collation,
-      String hint,
-      Map<String, Object> hintDocument})
+      {CollationOptions? collation,
+      String? hint,
+      Map<String, Object>? hintDocument})
       : super(filter,
             collation: collation,
             hint: hint,

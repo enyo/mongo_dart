@@ -13,7 +13,7 @@ void main() async {
     {'name': 'd', 'value': 40}
   ];
   await coll.insertAll(toInsert);
-  var v1 = await coll.findOne({'name': 'c'});
+  var v1 = await (coll.findOne({'name': 'c'}) as FutureOr<Map<String, dynamic>>);
   print('Record c: $v1');
   v1['value'] = 31;
   await coll.save(v1);
@@ -30,7 +30,7 @@ void main() async {
     {'name': 'd', 'value': 40}
   ];
   await coll.insertAll(toInsert);
-  v1 = await coll.findOne({'name': 'c'});
+  v1 = await (coll.findOne({'name': 'c'}) as FutureOr<Map<String, dynamic>>);
   print('Record c: $v1');
   await coll.legacyUpdate(where.eq('name', 'c'), modify.set('value', 31));
   v2 = await coll.findOne({'name': 'c'});
@@ -47,7 +47,7 @@ void main() async {
     {'name': 'd', 'value': 40}
   ];
   await coll.insertAll(toInsert);
-  v1 = await coll.findOne({'name': 'c'});
+  v1 = await (coll.findOne({'name': 'c'}) as FutureOr<Map<String, dynamic>>);
   print('Record c: $v1');
   await coll.legacyUpdate(where.eq('name', 'c'), modify.inc('value', 1));
   v2 = await coll.findOne({'name': 'c'});

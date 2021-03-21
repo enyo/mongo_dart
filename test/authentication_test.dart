@@ -55,7 +55,7 @@ void main() async {
               Db('$mongoDbUri?authMechanism=${ScramSha1Authenticator.name}');
 
           await db.open();
-          expect(db.masterConnection.isAuthenticated, isTrue);
+          expect(db.masterConnection!.isAuthenticated, isTrue);
           await db.collection('test').find().toList();
           await db.close();
         }
@@ -78,7 +78,7 @@ void main() async {
           'codeName': 'BadValue',
         };
 
-        var err;
+        late var err;
 
         try {
           await db.open();
@@ -114,7 +114,7 @@ void main() async {
           'codeName': 'BadValue',
         };
 
-        var err;
+        late var err;
 
         try {
           db.selectAuthenticationMechanism('MONGODB-CR');

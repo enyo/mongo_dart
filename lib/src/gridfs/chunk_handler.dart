@@ -1,32 +1,32 @@
 part of mongo_dart;
 
 class ChunkHandler {
-  int chunkSize;
-  List<int> carry;
+  int? chunkSize;
+  List<int>? carry;
 
   ChunkHandler([this.chunkSize = 1024 * 256]);
 
-  void _handle(List<int> data, EventSink<List<int>> sink, bool isClosing) {
+  void _handle(List<int>? data, EventSink<List<int>?> sink, bool isClosing) {
     if (carry != null) {
-      carry.addAll(data);
+      carry!.addAll(data!);
       data = carry;
       carry = null;
     }
     var pos = 0;
-    while (pos + chunkSize < data.length) {
-      sink.add(data.sublist(pos, pos + chunkSize));
-      pos += chunkSize;
+    while (pos + chunkSize! < data!.length) {
+      sink.add(data.sublist(pos, pos + chunkSize!));
+      pos += chunkSize!;
     }
     if (data.length > pos) {
       carry = <int>[];
-      carry.addAll(data.sublist(pos));
+      carry!.addAll(data.sublist(pos));
       if (isClosing) {
         sink.add(carry);
       }
     }
   }
 
-  void handleData(List<int> data, EventSink<List<int>> sink) {
+  void handleData(List<int> data, EventSink<List<int>?> sink) {
     _handle(data, sink, false);
   }
 
@@ -36,12 +36,12 @@ class ChunkHandler {
     print(stackTrace);
   }
 
-  void handleDone(EventSink<List<int>> sink) {
+  void handleDone(EventSink<List<int>?> sink) {
     _handle([], sink, true);
     sink.close();
   }
 
-  StreamTransformer<List<int>, List<int>> get transformer =>
-      StreamTransformer<List<int>, List<int>>.fromHandlers(
+  StreamTransformer<List<int>, List<int>?> get transformer =>
+      StreamTransformer<List<int>, List<int>?>.fromHandlers(
           handleData: handleData, handleDone: handleDone);
 }

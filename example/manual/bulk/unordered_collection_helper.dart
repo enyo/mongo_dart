@@ -13,7 +13,7 @@ void main() async {
   /// that is a convenient way of reading the result data.
   /// If you prefer the server response, a serverResponses list of
   /// document is available in the `BulkWriteResult` object.
-  var ret = await collection.bulkWrite([
+  var ret = await (collection.bulkWrite([
     {
       /// Insert many is specific to the mongo_dart driver.
       /// The mongo shell does not have this method
@@ -101,7 +101,7 @@ void main() async {
     /// Do not rely on this logic as it could change in the future.
     /// 
     /// Any error will not stop the execution of other operations.
-  ], ordered: false);
+  ], ordered: false) as FutureOr<BulkWriteResult>);
 
   print(ret.ok); // 1.0
   print(ret.operationSucceeded); // true

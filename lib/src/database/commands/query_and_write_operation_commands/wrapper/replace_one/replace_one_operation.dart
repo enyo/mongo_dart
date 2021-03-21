@@ -7,11 +7,11 @@ import 'replace_one_options.dart';
 import 'replace_one_statement.dart';
 
 class ReplaceOneOperation extends UpdateOperation {
-  ReplaceOneStatement replaceOneStatement;
+  ReplaceOneStatement? replaceOneStatement;
 
   ReplaceOneOperation(
       DbCollection collection, ReplaceOneStatement replaceOneStatement,
-      {ReplaceOneOptions replaceOneOptions, Map<String, Object> rawOptions})
+      {ReplaceOneOptions? replaceOneOptions, Map<String, Object?>? rawOptions})
       : super(
           collection,
           [replaceOneStatement],

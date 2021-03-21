@@ -12,12 +12,12 @@ class MongoModernMessage extends MongoResponseMessage {
   /// process. If not provided, clients should assume a max size
   /// of “16 * 1024 * 1024” (16MB).
   /// It is set when connecting from the isMaster command
-  static int maxBsonObjectSize = 16777216;
+  static int? maxBsonObjectSize = 16777216;
 
   /// The maximum permitted size of a BSON wire protocol message.
   /// The default value is 48000000 bytes
   /// It is set when connecting from the isMaster command
-  static int maxMessageSizeBytes = 48000000;
+  static int? maxMessageSizeBytes = 48000000;
 
   /// The maximum number of write operations permitted in a write batch.
   /// If a batch exceeds this limit, the client driver divides the batch into
@@ -27,7 +27,7 @@ class MongoModernMessage extends MongoResponseMessage {
   /// The value of this limit is 100,000 writes.
   ///
   /// It is set when connecting from the isMaster command
-  static int maxWriteBatchSize = 100000;
+  static int? maxWriteBatchSize = 100000;
 
   static const int basePayloadType = 0;
   static const int documentsPayloadType = 1;
@@ -161,9 +161,9 @@ class MongoModernMessage extends MongoResponseMessage {
     keyDelete
   ];
 
-  int flags;
-  int responseFlags;
-  List<Section> sections;
+  late int flags;
+  int? responseFlags;
+  late List<Section> sections;
 
   MongoModernMessage.fromBuffer(BsonBinary buffer) {
     opcode = MongoMessage.ModernMessage;
@@ -171,7 +171,7 @@ class MongoModernMessage extends MongoResponseMessage {
   }
 
   MongoModernMessage(Map<String, dynamic> document,
-      {bool checksumPresent, bool moreToCome, bool exhaustAllowed}) {
+      {bool? checksumPresent, bool? moreToCome, bool? exhaustAllowed}) {
     checksumPresent ??= false;
     moreToCome ??= false;
     exhaustAllowed ??= false;
@@ -191,7 +191,7 @@ class MongoModernMessage extends MongoResponseMessage {
 
     sections = createSections(document);
 
-    if (messageLength > maxMessageSizeBytes) {
+    if (messageLength > maxMessageSizeBytes!) {
       throw MongoDartError('The total message length (${messageLength} bytes) '
           'is bigger than the max allowed limit ($maxMessageSizeBytes bytes)');
     }
@@ -225,7 +225,7 @@ class MongoModernMessage extends MongoResponseMessage {
           'The first entry ("${keys.first}") of the document is not a command name');
     }
     var argumentName = commandArgument[indexOfCommandName];
-    var data = doc[argumentName] as List<Map<String, Object>>;
+    var data = doc[argumentName] as List<Map<String, Object>>?;
     if (data == null) {
       throw MongoDartError('The command ${keys.first} requires an element with '
           'key $argumentName');
@@ -233,7 +233,7 @@ class MongoModernMessage extends MongoResponseMessage {
     doc.remove(argumentName);
     ret.add(Section(basePayloadType, doc));
     var totalElements = data.length;
-    if (data.length > maxWriteBatchSize) {
+    if (data.length > maxWriteBatchSize!) {
       throw MongoDartError('The total number of documents (${data.length}) '
           'is greater than the max allowed ($maxWriteBatchSize)');
     }
@@ -283,7 +283,7 @@ class MongoModernMessage extends MongoResponseMessage {
           '(${buffer.byteLength()} bytes) is not what expected '
           '(${super.messageLength} bytes)');
     }
-    while (buffer.offset < super.messageLength) {
+    while (buffer.offset < super.messageLength!) {
       sections.add(Section.fromBuffer(buffer));
     }
 

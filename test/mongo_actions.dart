@@ -70,7 +70,7 @@ void _initStatus() {
   script = null;
 }
 
-ProcessResult _startMongod(int port, [String rs]) {
+ProcessResult _startMongod(int port, [String? rs]) {
   _log.info(() => '### Start mongod $port instance');
   var args = [
     '--fork',

@@ -7,11 +7,11 @@ import 'update_one_options.dart';
 import 'update_one_statement.dart';
 
 class UpdateOneOperation extends UpdateOperation {
-  UpdateOneStatement updateRequest;
+  UpdateOneStatement? updateRequest;
 
   UpdateOneOperation(
       DbCollection collection, UpdateOneStatement updateOneStatement,
-      {UpdateOneOptions updateOneOptions, Map<String, Object> rawOptions})
+      {UpdateOneOptions? updateOneOptions, Map<String, Object?>? rawOptions})
       : super(
           collection,
           [updateOneStatement],

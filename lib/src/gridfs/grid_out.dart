@@ -24,7 +24,7 @@ class GridOut extends GridFSFile {
       length += data.byteList.length;
     }
 
-    fs.chunks
+    fs!.chunks
         .find(where.eq('files_id', id).sortBy('n'))
         .forEach(addToSink)
         .then((_) => completer.complete(length));

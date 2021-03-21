@@ -3,9 +3,9 @@ part of mongo_dart;
 class ServerConfig {
   String host;
   int port;
-  bool isSecure;
-  String userName;
-  String password;
+  bool? isSecure;
+  String? userName;
+  String? password;
 
   bool isAuthenticated = false;
   

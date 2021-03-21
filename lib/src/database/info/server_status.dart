@@ -4,18 +4,18 @@ import 'package:mongo_dart/src/database/utils/map_keys.dart';
 class ServerStatus {
   bool isInitialized = false;
 
-  String host;
-  String version;
+  String? host;
+  String? version;
 
   /// The current MongoDB process. Possible values are: mongos or mongod.
-  String process;
-  String storageEngineName;
+  String? process;
+  String? storageEngineName;
   bool isJournaled = false;
   bool isPersistent = true;
-  int pid;
+  int? pid;
 
   /// If the cluster is a replica set, here we have the list of the hosts
-  List<String> replicaHosts;
+  List<String?>? replicaHosts;
 
   bool get isReplicaSet => replicaHosts != null;
   bool get isShardedCluster => process == 'mongos';
@@ -37,12 +37,12 @@ class ServerStatus {
     process = serverStatus[keyProcess];
     pid = serverStatus[keyPid];
     if (serverStatus[keyRepl] != null) {
-      replicaHosts = <String>[
+      replicaHosts = <String?>[
         for (var host in (serverStatus[keyRepl] as Map)[keyHosts]) host
       ];
     }
     // It seems that this key is missing on mongos
-    Map storageEngineMap = serverStatus[keyStorageEngine];
+    Map? storageEngineMap = serverStatus[keyStorageEngine];
     storageEngineName = '';
     isPersistent = true;
     if (storageEngineMap != null) {

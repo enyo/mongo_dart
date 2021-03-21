@@ -15,7 +15,7 @@ Future testCollectionInfoCursor() {
     '${DefaultUri2}/mongo_dart-test',
     '${DefaultUri3}/mongo_dart-test'
   ], 'testCollectionInfoCursor');
-  DbCollection newColl;
+  late DbCollection newColl;
   return db.open(writeConcern: WriteConcern.JOURNALED).then((c) {
     newColl = db.collection('new_collecion');
     return newColl.remove({});

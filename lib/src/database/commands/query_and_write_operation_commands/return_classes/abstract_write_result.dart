@@ -7,39 +7,39 @@ enum WriteCommandType { insert, update, delete }
 
 abstract class AbstractWriteResult with BasicResult {
   AbstractWriteResult.fromMap(
-      this.writeCommandType, Map<String, Object> result) {
+      this.writeCommandType, Map<String, Object?> result) {
     extractBasic(result);
 
     serverResponses = [result];
     //ok = result[keyOk];
     switch (writeCommandType) {
       case WriteCommandType.insert:
-        nInserted = result[keyN] ?? 0;
+        nInserted = result[keyN] as int? ?? 0;
         break;
       case WriteCommandType.update:
-        nMatched = result[keyN] ?? 0;
+        nMatched = result[keyN] as int? ?? 0;
         break;
       case WriteCommandType.delete:
-        nRemoved = result[keyN] ?? 0;
+        nRemoved = result[keyN] as int? ?? 0;
         break;
     }
     if (result.containsKey(keyNModified)) {
-      nModified = result[keyNModified];
+      nModified = result[keyNModified] as int?;
     }
     if (result[keyUpserted] != null) {
       nUpserted = (result[keyUpserted] as List).length;
     }
     if (result.containsKey(keyWriteConcernError)) {
       writeConcernError =
-          WriteConcernError.fromMap(result[keyWriteConcernError]);
+          WriteConcernError.fromMap(result[keyWriteConcernError] as Map<String, Object>);
     }
   }
 
   /// This is the original response from the server;
-  List<Map<String, Object>> serverResponses;
+  late List<Map<String, Object?>> serverResponses;
 
   /// The command that generated this output;
-  WriteCommandType writeCommandType;
+  WriteCommandType? writeCommandType;
 
   /// The number of documents inserted, excluding upserted documents.
   /// See nUpserted for the number of documents inserted
@@ -55,7 +55,7 @@ abstract class AbstractWriteResult with BasicResult {
   /// operation results in no change to the document, such as setting the
   /// value of the field to its current value, nModified can be less than
   /// nMatched.
-  int nModified = 0;
+  int? nModified = 0;
 
   /// The number of documents inserted by an upsert.
   int nUpserted = 0;
@@ -63,7 +63,7 @@ abstract class AbstractWriteResult with BasicResult {
   /// The number of documents removed.
   int nRemoved = 0;
 
-  WriteConcernError writeConcernError;
+  WriteConcernError? writeConcernError;
 
   int get totalInserted => nInserted + nUpserted;
 
@@ -136,12 +136,12 @@ abstract class AbstractWriteResult with BasicResult {
       case WriteCommandType.insert:
         return nInserted > 0;
       case WriteCommandType.update:
-        return nModified + nUpserted > 0;
+        return nModified! + nUpserted > 0;
       case WriteCommandType.delete:
         return nRemoved > 0;
       // mixed case, the writeCommandType is Null
       default:
-        return nInserted + nModified + nUpserted + nRemoved > 0;
+        return nInserted + nModified! + nUpserted + nRemoved > 0;
     }
   }
 
@@ -151,12 +151,12 @@ abstract class AbstractWriteResult with BasicResult {
       case WriteCommandType.insert:
         return nInserted == 0;
       case WriteCommandType.update:
-        return nModified + nUpserted == 0;
+        return nModified! + nUpserted == 0;
       case WriteCommandType.delete:
         return nRemoved == 0;
       // mixed case, the writeCommandType is Null
       default:
-        return nInserted + nModified + nUpserted + nRemoved == 0;
+        return nInserted + nModified! + nUpserted + nRemoved == 0;
     }
   }
 }

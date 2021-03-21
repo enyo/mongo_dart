@@ -1,8 +1,8 @@
 part of mongo_dart;
 
 class MongoGetMoreMessage extends MongoMessage {
-  BsonCString _collectionFullName;
-  int cursorId;
+  late BsonCString _collectionFullName;
+  int? cursorId;
   int numberToReturn;
 
   MongoGetMoreMessage(String collectionFullName, this.cursorId,
@@ -23,7 +23,7 @@ class MongoGetMoreMessage extends MongoMessage {
     buffer.writeInt(0);
     _collectionFullName.packValue(buffer);
     buffer.writeInt(numberToReturn);
-    buffer.writeInt64(cursorId);
+    buffer.writeInt64(cursorId!);
     buffer.offset = 0;
     return buffer;
   }

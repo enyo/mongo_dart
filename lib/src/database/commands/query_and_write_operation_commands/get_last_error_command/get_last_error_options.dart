@@ -20,12 +20,12 @@ import 'package:mongo_dart/src/database/utils/map_keys.dart';
 ///   limiting it to Strings only.
 ///
 class GetLastErrorOptions {
-  final int wtimeout;
-  final String comment;
+  final int? wtimeout;
+  final String? comment;
 
   GetLastErrorOptions({this.wtimeout, this.comment});
 
-  Map<String, Object> get options => <String, Object>{
+  Map<String, Object?> get options => <String, Object?>{
         if (wtimeout != null) keyWtimeout: wtimeout,
         if (comment != null) keyComment: comment,
       };

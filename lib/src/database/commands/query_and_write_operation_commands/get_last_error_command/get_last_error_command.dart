@@ -33,10 +33,10 @@ import 'package:mongo_dart/src/database/utils/map_keys.dart';
 ///   - a set of optional values for the command
 class GetLastErrorCommand extends CommandOperation {
   GetLastErrorCommand(Db db,
-      {WriteConcern writeConcern,
-      GetLastErrorOptions getLastErrorOptions,
-      Map<String, Object> rawOptions})
-      : super(db, <String, Object>{
+      {WriteConcern? writeConcern,
+      GetLastErrorOptions? getLastErrorOptions,
+      Map<String, Object?>? rawOptions})
+      : super(db, <String, Object?>{
           ...?getLastErrorOptions?.options,
           ...?rawOptions
         }, command: <String, Object>{
@@ -48,24 +48,24 @@ class GetLastErrorCommand extends CommandOperation {
     }
     if (writeConcern != null) {
       options = {
-        ...writeConcern.asMap(db.masterConnection.serverStatus)
+        ...writeConcern.asMap(db.masterConnection!.serverStatus)
           ..remove(keyFsync),
-        ...options,
+        ...options!,
       };
     }
 
     /// If not specified, set a default timeout in case "w" have been set
-    if ((options.containsKey(keyWriteConcern) || options.containsKey(keyW)) &&
-        !options.containsKey(keyWtimeout)) {
-      options[keyWtimeout] = 5000;
+    if ((options!.containsKey(keyWriteConcern) || options!.containsKey(keyW)) &&
+        !options!.containsKey(keyWtimeout)) {
+      options![keyWtimeout] = 5000;
     }
   }
   // this is needed for compatibility with old command version
   @override
-  Future<Map<String, Object>> execute() async {
+  Future<Map<String, Object?>> execute() async {
     var result = await super.execute();
     if (result != null && result.isNotEmpty) {
-      String res = result['err'];
+      String? res = result['err'] as String?;
       if (res != null && res.isNotEmpty) {
         throw result;
       }

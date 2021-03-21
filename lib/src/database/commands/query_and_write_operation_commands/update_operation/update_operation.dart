@@ -9,11 +9,11 @@ import '../../base/command_operation.dart';
 class UpdateOperation extends CommandOperation {
   UpdateOperation(DbCollection collection, this.updates,
       {this.ordered,
-      UpdateOptions updateOptions,
-      Map<String, Object> rawOptions})
+      UpdateOptions? updateOptions,
+      Map<String, Object?>? rawOptions})
       : super(
             collection.db,
-            <String, Object>{
+            <String, Object?>{
               ...?updateOptions?.getOptions(collection.db),
               ...?rawOptions
             },
@@ -30,12 +30,12 @@ class UpdateOperation extends CommandOperation {
   /// the remaining update statements. If false, then when an update fails,
   /// continue with the remaining update statements, if any.
   /// Defaults to true.
-  bool ordered = true;
+  bool? ordered = true;
 
   @override
-  Map<String, Object> $buildCommand() => <String, Object>{
-        keyUpdate: collection.collectionName,
+  Map<String, Object?> $buildCommand() => <String, Object?>{
+        keyUpdate: collection!.collectionName,
         keyUpdates: [for (var request in updates) request.toMap()],
-        if (ordered) keyOrdered: ordered,
+        if (ordered!) keyOrdered: ordered,
       };
 }

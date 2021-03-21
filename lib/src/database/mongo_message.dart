@@ -1,7 +1,7 @@
 part of mongo_dart;
 
 class _Statics {
-  static int _requestId;
+  static int? _requestId;
   static int get nextRequestId {
     _requestId ??= 1;
 
@@ -20,18 +20,18 @@ class MongoMessage {
   static final KillCursors = 2007;
   static final ModernMessage = 2013;
 
-  int _requestId;
-  int _messageLength;
+  int? _requestId;
+  int? _messageLength;
 
-  int get messageLength => _messageLength;
+  int? get messageLength => _messageLength;
 
-  int get requestId {
+  int? get requestId {
     _requestId ??= _Statics.nextRequestId;
 
     return _requestId;
   }
 
-  int responseTo;
+  int? responseTo;
   int opcode = MongoMessage.Reply;
 
   BsonBinary serialize() {
@@ -54,11 +54,11 @@ class MongoMessage {
   }
 
   void writeMessageHeaderTo(BsonBinary buffer) {
-    buffer.writeInt(messageLength); // messageLength will be backpatched later
-    buffer.writeInt(requestId);
+    buffer.writeInt(messageLength!); // messageLength will be backpatched later
+    buffer.writeInt(requestId!);
     buffer.writeInt(0); // responseTo not used in requests sent by client
     buffer.writeInt(opcode);
-    if (messageLength < 0) {
+    if (messageLength! < 0) {
       throw MongoDartError('Error in message length');
     }
   }

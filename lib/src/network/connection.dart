@@ -8,7 +8,7 @@ const noSecureRequestError = 'The socket connection has been reset by peer.'
     '\n- Others';
 
 class _ServerCapabilities {
-  int maxWireVersion = 0;
+  int? maxWireVersion = 0;
   bool aggregationCursor = false;
   bool writeCommands = false;
   bool authCommands = false;
@@ -16,31 +16,31 @@ class _ServerCapabilities {
   bool listIndexes = false;
   int maxNumberOfDocsInBatch = 1000;
   bool supportsOpMsg = false;
-  String replicaSetName;
-  List<String> replicaSetHosts;
+  String? replicaSetName;
+  List<String>? replicaSetHosts;
   bool get isReplicaSet => replicaSetName != null;
   int get replicaSetHostsNum => replicaSetHosts?.length ?? 0;
   bool get isSingleServerReplicaSet => isReplicaSet && replicaSetHostsNum == 1;
   bool isShardedCluster = false;
   bool isStandalone = false;
-  String fcv;
+  String? fcv;
 
   void getParamsFromIstMaster(Map<String, dynamic> isMaster) {
     if (isMaster.containsKey('maxWireVersion')) {
-      maxWireVersion = isMaster['maxWireVersion'] as int;
+      maxWireVersion = isMaster['maxWireVersion'] as int?;
     }
-    if (maxWireVersion >= 1) {
+    if (maxWireVersion! >= 1) {
       aggregationCursor = true;
       authCommands = true;
     }
-    if (maxWireVersion >= 2) {
+    if (maxWireVersion! >= 2) {
       writeCommands = true;
     }
-    if (maxWireVersion >= 3) {
+    if (maxWireVersion! >= 3) {
       listCollections = true;
       listIndexes = true;
     }
-    if (maxWireVersion >= 6) {
+    if (maxWireVersion! >= 6) {
       supportsOpMsg = true;
     }
     if (isMaster.containsKey(keyMsg)) {
@@ -55,7 +55,7 @@ class _ServerCapabilities {
       fcv = '4.4';
     } else if (isMaster.containsKey(keyConnectionId)) {
       fcv = '4.2';
-    } else if (maxWireVersion > 6) {
+    } else if (maxWireVersion! > 6) {
       // approximated
       fcv = '4.0';
     } else {
@@ -67,17 +67,17 @@ class _ServerCapabilities {
 class Connection {
   final Logger _log = Logger('Connection');
   final _ConnectionManager _manager;
-  ServerConfig serverConfig;
-  Socket socket;
-  final Set _pendingQueries = <int>{};
+  ServerConfig? serverConfig;
+  Socket? socket;
+  final Set _pendingQueries = <int?>{};
 
-  Map<int, Completer<MongoResponseMessage>> get _replyCompleters =>
+  Map<int?, Completer<MongoResponseMessage>> get _replyCompleters =>
       _manager.replyCompleters;
 
   Queue<MongoMessage> get _sendQueue => _manager.sendQueue;
-  StreamSubscription<MongoResponseMessage> _repliesSubscription;
+  StreamSubscription<MongoResponseMessage>? _repliesSubscription;
 
-  StreamSubscription<MongoResponseMessage> get repliesSubscription =>
+  StreamSubscription<MongoResponseMessage>? get repliesSubscription =>
       _repliesSubscription;
 
   bool connected = false;
@@ -95,17 +95,17 @@ class Connection {
   Future<bool> connect() async {
     Socket _socket;
     try {
-      if (serverConfig.isSecure) {
+      if (serverConfig!.isSecure!) {
         _socket =
-            await SecureSocket.connect(serverConfig.host, serverConfig.port);
+            await SecureSocket.connect(serverConfig!.host, serverConfig!.port);
       } else {
-        _socket = await Socket.connect(serverConfig.host, serverConfig.port);
+        _socket = await Socket.connect(serverConfig!.host, serverConfig!.port);
       }
     } catch (e) {
       _closed = true;
       connected = false;
       var ex =
-          ConnectionException('Could not connect to ${serverConfig.hostUrl}');
+          ConnectionException('Could not connect to ${serverConfig!.hostUrl}');
       throw ex;
     }
 
@@ -113,7 +113,7 @@ class Connection {
     _socket.done.catchError((error) => _log.info('Socket error ${error}'));
     socket = _socket;
 
-    _repliesSubscription = socket
+    _repliesSubscription = socket!
         .transform<MongoResponseMessage>(MongoMessageHandler().transformer)
         .listen(_receiveReply,
             onError: (e, st) async {
@@ -138,7 +138,7 @@ class Connection {
     return true;
   }
 
-  Future close() {
+  Future? close() {
     _closed = true;
     connected = false;
     return socket?.close();
@@ -151,7 +151,7 @@ class Connection {
       var mongoMessage = _sendQueue.removeFirst();
       message.addAll(mongoMessage.serialize().byteList);
     }
-    socket.add(message);
+    socket!.add(message);
   }
 
   Future<MongoReplyMessage> query(MongoMessage queryMessage) {
@@ -190,7 +190,7 @@ class Connection {
       MongoModernMessage modernMessage) {
     Completer completer = Completer<MongoModernMessage>();
     if (!_closed) {
-      _replyCompleters[modernMessage.requestId] = completer;
+      _replyCompleters[modernMessage.requestId] = completer as Completer<MongoResponseMessage>;
       _pendingQueries.add(modernMessage.requestId);
       _log.fine(() => 'Message $modernMessage');
       _sendQueue.addLast(modernMessage);
@@ -199,12 +199,12 @@ class Connection {
       completer.completeError(const ConnectionException(
           'Invalid state: Connection already closed.'));
     }
-    return completer.future;
+    return completer.future as Future<MongoModernMessage>;
   }
 
   void _receiveReply(MongoResponseMessage reply) {
     _log.fine(() => reply.toString());
-    Completer completer = _replyCompleters.remove(reply.responseTo);
+    Completer? completer = _replyCompleters.remove(reply.responseTo);
     _pendingQueries.remove(reply.responseTo);
     if (completer != null) {
       _log.fine(() => 'Completing $reply');
@@ -222,7 +222,7 @@ class Connection {
     var ex = ConnectionException(
         'connection closed${socketError == null ? '.' : ': $socketError'}');
     for (var id in _pendingQueries) {
-      Completer completer = _replyCompleters.remove(id);
+      Completer completer = _replyCompleters.remove(id)!;
       completer.completeError(ex);
     }
     _pendingQueries.clear();

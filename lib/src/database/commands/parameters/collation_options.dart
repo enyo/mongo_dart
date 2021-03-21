@@ -12,12 +12,12 @@ class CollationOptions {
   /// The ICU locale.
   /// See [Supported Languages and Locales](https://docs.mongodb.com/manual/reference/collation-locales-defaults/#collation-languages-locales)
   /// for a list of supported locales.
-  final String locale;
+  final String? locale;
 
   /// The level of comparison to perform.
   /// Corresponds to [ICU Comparison Levels](http://userguide.icu-project.org/collation/concepts#TOC-Comparison-Levels).
   /// Possible values are: 1, 2, 3, 4, 5
-  int strength;
+  int? strength;
 
   /// Flag that determines whether to include case comparison at strength
   /// level 1 or 2. If true, include case comparison; i.e.
@@ -27,7 +27,7 @@ class CollationOptions {
   /// If false, do not include case comparison at level 1 or 2.
   /// The default is false.
   /// For more information, see [ICU Collation: Case Level](http://userguide.icu-project.org/collation/concepts#TOC-CaseLevel).
-  bool caseLevel;
+  bool? caseLevel;
 
   /// A field that determines sort order of case differences during tertiary level comparisons.
   /// Possible values are:
@@ -36,14 +36,14 @@ class CollationOptions {
   /// * “off” 	Default value. Similar to "lower" with slight differences.
   /// [See](http://userguide.icu-project.org/collation/customization)
   /// for details of differences.
-  String caseFirst;
+  String? caseFirst;
 
   /// Flag that determines whether to compare numeric strings as numbers or
   /// as strings.
   /// If true, compare as numbers; i.e. "10" is greater than "2".
   /// If false, compare as strings; i.e. "10" is less than "2".
   /// Default is false.
-  bool numericOrdering;
+  bool? numericOrdering;
 
   /// Field that determines whether collation should consider whitespace and
   /// punctuation as base characters for purposes of comparison.
@@ -54,7 +54,7 @@ class CollationOptions {
   ///   characters and are only distinguished at strength levels greater than 3.
   /// See [ICU Collation: Comparison Levels](http://userguide.icu-project.org/collation/concepts#TOC-Comparison-Levels) for more information.
   /// Default is "non-ignorable".
-  String alternate;
+  String? alternate;
 
   /// Field that determines up to which characters are considered ignorable
   /// when alternate: "shifted". Has no effect if alternate: "non-ignorable"
@@ -63,14 +63,14 @@ class CollationOptions {
   ///    i.e. not considered base characters.
   /// * "space" 	Whitespace are “ignorable”,
   ///    i.e. not considered base characters.
-  String maxVariable;
+  String? maxVariable;
 
   /// Flag that determines whether strings with diacritics sort from back
   /// of the string, such as with some French dictionary ordering.
   /// If true, compare from back to front.
   /// If false, compare from front to back.
   /// The default value is false.
-  bool backwards;
+  bool? backwards;
 
   /// Flag that determines whether to check if text require normalization and
   /// to perform normalization. Generally, majority of text does not require
@@ -81,7 +81,7 @@ class CollationOptions {
   /// The default value is false.
   /// [See](http://userguide.icu-project.org/collation/concepts#TOC-Normalization)
   /// for details
-  bool normalization;
+  bool? normalization;
 
   CollationOptions(this.locale,
       {this.strength,
@@ -96,7 +96,7 @@ class CollationOptions {
       throw MongoDartError(
           'Locale parameter required in Collation constructor');
     }
-    if (strength != null && (strength < 1 || strength > 5)) {
+    if (strength != null && (strength! < 1 || strength! > 5)) {
       throw MongoDartError(
           'The allowed values for the strngt parameter are 1 to 5');
     }
@@ -125,7 +125,7 @@ class CollationOptions {
   ///   maxVariable: <String>,
   ///   backwards: <bool>
   /// }
-  factory CollationOptions.fromMap(Map<String, Object> collationMap) {
+  factory CollationOptions.fromMap(Map<String, Object>? collationMap) {
     if (collationMap == null) {
       throw MongoDartError('The collation constructor requires a Map');
     }
@@ -161,27 +161,27 @@ class CollationOptions {
       throw MongoDartError('$keyBackwards must be of type bool');
     }
 
-    return CollationOptions(collationMap[keyLocale],
-        caseLevel: collationMap[keyCaseLevel],
-        caseFirst: collationMap[keyCaseFirst],
-        strength: collationMap[keyStrength],
-        numericOrdering: collationMap[keyNumericOrdering],
-        alternate: collationMap[keyAlternate],
-        maxVariable: collationMap[keyMaxVariable],
-        backwards: collationMap[keyBackwards]);
+    return CollationOptions(collationMap[keyLocale] as String?,
+        caseLevel: collationMap[keyCaseLevel] as bool?,
+        caseFirst: collationMap[keyCaseFirst] as String?,
+        strength: collationMap[keyStrength] as int?,
+        numericOrdering: collationMap[keyNumericOrdering] as bool?,
+        alternate: collationMap[keyAlternate] as String?,
+        maxVariable: collationMap[keyMaxVariable] as String?,
+        backwards: collationMap[keyBackwards] as bool?);
   }
 
-  Map<String, Object> get options => <String, Object>{
+  Map<String, Object?> get options => <String, Object?>{
         keyLocale: locale,
         if (strength != null) keyStrength: strength,
-        if (caseLevel != null && !caseLevel) keyCaseLevel: caseLevel,
+        if (caseLevel != null && !caseLevel!) keyCaseLevel: caseLevel,
         if (caseFirst != null) keyCaseFirst: caseFirst,
-        if (numericOrdering != null && !numericOrdering)
+        if (numericOrdering != null && !numericOrdering!)
           keyNumericOrdering: numericOrdering,
         if (alternate != null) keyAlternate: alternate,
         if (maxVariable != null) keyMaxVariable: maxVariable,
-        if (backwards != null && !backwards) keyBackwards: backwards,
-        if (normalization != null && !normalization)
+        if (backwards != null && !backwards!) keyBackwards: backwards,
+        if (normalization != null && !normalization!)
           keyNormalization: normalization,
       };
 }

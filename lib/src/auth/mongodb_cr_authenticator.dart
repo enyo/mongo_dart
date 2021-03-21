@@ -9,7 +9,7 @@ class MongoDbCRAuthenticator extends Authenticator {
   MongoDbCRAuthenticator(this.db, this.credentials);
 
   @override
-  Future authenticate(Connection connection) {
+  Future authenticate(Connection? connection) {
     return db.getNonce(connection: connection).then((msg) {
       var nonce = msg['nonce'];
       var command = createMongoDbCrAuthenticationCommand(

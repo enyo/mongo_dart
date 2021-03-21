@@ -7,13 +7,13 @@ import 'change_stream_options.dart';
 
 class ChangeStreamOperation extends AggregateOperation {
   ChangeStreamOperation(Object pipeline,
-      {DbCollection collection,
-      Db db,
-      int batchSize,
-      String hint,
-      Map<String, Object> hintDocument,
-      ChangeStreamOptions changeStreamOptions,
-      Map<String, Object> rawOptions})
+      {DbCollection? collection,
+      Db? db,
+      int? batchSize,
+      String? hint,
+      Map<String, Object>? hintDocument,
+      ChangeStreamOptions? changeStreamOptions,
+      Map<String, Object?>? rawOptions})
       : super(
           pipeline,
           collection: collection,
@@ -26,7 +26,7 @@ class ChangeStreamOperation extends AggregateOperation {
           aggregateOptions: changeStreamOptions,
           rawOptions: rawOptions,
         ) {
-    this.pipeline.insert(0, <String, Object>{
+    this.pipeline!.insert(0, <String, Object>{
       if (changeStreamOptions == null)
         aggregateChangeStream: <String, Object>{}
       else

@@ -9,11 +9,11 @@ class FindOptions {
   /// but no documents will be returned in the first batch.
   /// Unlike the previous wire protocol version, a batchSize of 1 for the find
   /// command does not close the cursor
-  final int batchSize;
+  final int? batchSize;
 
   /// Determines whether to close the cursor after the first batch.
   /// Defaults to false.
-  final bool singleBatch;
+  final bool? singleBatch;
 
   /// A user-provided comment to attach to this command. Once set,
   /// this comment appears alongside records of this command in the
@@ -26,7 +26,7 @@ class FindOptions {
   /// **Note**
   /// Any comment set on a find command is inherited by any subsequent
   /// getMore commands run on the find cursor.
-  final String comment;
+  final String? comment;
 
   /// The cumulative time limit in milliseconds for processing operations on
   /// the cursor. MongoDB aborts the operation at the earliest following
@@ -36,7 +36,7 @@ class FindOptions {
   /// a majority of data bearing members are unavailable. maxTimeMS ensures
   /// that the operation does not block indefinitely and instead ensures that
   /// the operation returns an error if the read concern cannot be fulfilled.
-  final int maxTimeMS;
+  final int? maxTimeMS;
 
   /// Starting in MongoDB 3.6, the readConcern option has the following syntax:
   /// readConcern: { level: <value> }
@@ -51,46 +51,46 @@ class FindOptions {
   /// For more formation on the read concern levels, see [Read Concern Levels](https://docs.mongodb.com/manual/reference/read-concern/#read-concern-levels).
   /// The getMore command uses the readConcern level specified in the
   /// originating find command.
-  final ReadConcern readConcern;
+  final ReadConcern? readConcern;
 
   /// The exclusive upper bound for a specific index. See cursor.max()
   /// for details.
   /// Starting in MongoDB 4.2, to use the max field, the command must also
   /// use hint unless the specified filter is an equality condition on the
   /// _id field { _id: <value> }.
-  final Map<String, Object> max;
+  final Map<String, Object>? max;
 
   /// The inclusive lower bound for a specific index. See cursor.min()
   /// for details.
   /// Starting in MongoDB 4.2, to use the min field, the command must also
   /// use hint unless the specified filter is an equality condition on the
   /// _id field { _id: <value> }.
-  final Map<String, Object> min;
+  final Map<String, Object>? min;
 
   /// If true, returns only the index keys in the resulting documents.
   /// Default value is false. If returnKey is true and the find command does
   /// not use an index, the returned documents will be empty.
-  final bool returnKey;
+  final bool? returnKey;
 
   /// Determines whether to return the record identifier for each document.
   /// If true, adds a field $recordId to the returned documents.
-  final bool showRecordId;
+  final bool? showRecordId;
 
   /// Returns a tailable cursor for a capped collections
-  final bool tailable;
+  final bool? tailable;
 
   /// Use in conjunction with the tailable option to block a getMore command
   /// on the cursor temporarily if at the end of data rather than returning
   /// no data. After a timeout period, find returns as normal.
-  final bool awaitData;
+  final bool? awaitData;
   @Deprecated('Deprecated since version 4.4')
 
   /// An internal command for replaying a replica set’s oplog.
-  final bool oplogReplay;
+  final bool? oplogReplay;
 
   /// Prevents the server from timing out idle cursors after an inactivity
   /// period (10 minutes).
-  final bool noCursorTimeout;
+  final bool? noCursorTimeout;
 
   /// For queries against a sharded collection, allows the command
   /// (or subsequent getMore commands) to return partial results,
@@ -102,14 +102,14 @@ class FindOptions {
   /// one or more shards become unavailable in subsequent getMore commands,
   /// only the getMore commands run when a queried shard or shards are
   /// unavailable include the partialResultsReturned flag in the output.
-  final bool allowPartialResult;
+  final bool? allowPartialResult;
 
   /// Specifies the [collation] to use for the operation.
   /// Collation allows users to specify language-specific rules for string
   /// comparison, such as rules for lettercase and accent marks.
   /// [See Collation document](https://docs.mongodb.com/manual/reference/collation/#collation-document-fields)
   /// @Since(3.4)
-  final CollationOptions collation;
+  final CollationOptions? collation;
 
   /// Use allowDiskUse to allow MongoDB to use temporary files on disk to
   /// store data exceeding the 100 megabyte memory limit while processing a
@@ -125,7 +125,7 @@ class FindOptions {
   /// For more information on memory restrictions for large blocking sorts,
   /// see [Sort and Index Use](https://docs.mongodb.com/manual/reference/method/cursor.sort/#sort-index-use).
   /// @Since(4.4)
-  final bool allowDiskUse;
+  final bool? allowDiskUse;
 
   FindOptions(
       {this.batchSize,
@@ -144,20 +144,20 @@ class FindOptions {
       this.allowPartialResult,
       this.collation,
       this.allowDiskUse}) {
-    if (batchSize != null && batchSize < 0) {
+    if (batchSize != null && batchSize! < 0) {
       throw MongoDartError('Batch size parameter must be a non negative value');
     }
-    if (maxTimeMS != null && maxTimeMS < 1) {
+    if (maxTimeMS != null && maxTimeMS! < 1) {
       throw MongoDartError('MaxTimeMS parameter must be a positive value');
     }
   }
 
-  Map<String, Object> get options => <String, Object>{
+  Map<String, Object?> get options => <String, Object?>{
         if (batchSize != null) keyBatchSize: batchSize,
         if (singleBatch != null) keySingleBatch: singleBatch,
         if (comment != null) keyComment: comment,
         if (maxTimeMS != null) keyMaxTimeMS: maxTimeMS,
-        if (readConcern != null) keyReadConcern: readConcern.toMap(),
+        if (readConcern != null) keyReadConcern: readConcern!.toMap(),
         if (max != null) keyMax: max,
         if (min != null) keyMin: min,
         if (returnKey != null) keyReturnKey: returnKey,
@@ -168,7 +168,7 @@ class FindOptions {
         if (awaitData != null) keyAwaitData: awaitData,
         if (allowPartialResult != null)
           keyAllowPartialResult: allowPartialResult,
-        if (collation != null) keyCollation: collation.options,
+        if (collation != null) keyCollation: collation!.options,
         if (allowDiskUse != null) keyAllowDiskUse: allowDiskUse,
       };
 }

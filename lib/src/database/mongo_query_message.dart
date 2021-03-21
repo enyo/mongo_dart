@@ -10,13 +10,13 @@ class MongoQueryMessage extends MongoMessage {
   static final OPTS_EXHAUST = 64;
   static final OPTS_PARTIAL = 128;
 
-  BsonCString _collectionFullName;
+  BsonCString? _collectionFullName;
   int flags;
   int numberToSkip;
   int numberToReturn;
-  BsonMap _query;
-  BsonMap _fields;
-  BsonCString get collectionNameBson => _collectionFullName;
+  late BsonMap _query;
+  BsonMap? _fields;
+  BsonCString? get collectionNameBson => _collectionFullName;
 
   MongoQueryMessage(
       String collectionFullName,
@@ -24,7 +24,7 @@ class MongoQueryMessage extends MongoMessage {
       this.numberToSkip,
       this.numberToReturn,
       Map<String, dynamic> query,
-      Map<String, dynamic> fields) {
+      Map<String, dynamic>? fields) {
     _collectionFullName = BsonCString(collectionFullName);
     _query = BsonMap(query);
     if (fields != null) {
@@ -36,9 +36,9 @@ class MongoQueryMessage extends MongoMessage {
   @override
   int get messageLength {
     var result =
-        16 + 4 + _collectionFullName.byteLength() + 4 + 4 + _query.byteLength();
+        16 + 4 + _collectionFullName!.byteLength() + 4 + 4 + _query.byteLength();
     if (_fields != null) {
-      result += _fields.byteLength();
+      result += _fields!.byteLength();
     }
     return result;
   }
@@ -48,12 +48,12 @@ class MongoQueryMessage extends MongoMessage {
     var buffer = BsonBinary(messageLength);
     writeMessageHeaderTo(buffer);
     buffer.writeInt(flags);
-    _collectionFullName.packValue(buffer);
+    _collectionFullName!.packValue(buffer);
     buffer.writeInt(numberToSkip);
     buffer.writeInt(numberToReturn);
     _query.packValue(buffer);
     if (_fields != null) {
-      _fields.packValue(buffer);
+      _fields!.packValue(buffer);
     }
     buffer.offset = 0;
     return buffer;
@@ -61,6 +61,6 @@ class MongoQueryMessage extends MongoMessage {
 
   @override
   String toString() {
-    return 'MongoQueryMessage($requestId, ${_collectionFullName.value},numberToReturn:$numberToReturn, ${_query.value})';
+    return 'MongoQueryMessage($requestId, ${_collectionFullName!.value},numberToReturn:$numberToReturn, ${_query.value})';
   }
 }

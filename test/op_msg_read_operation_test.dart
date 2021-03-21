@@ -27,7 +27,7 @@ const DefaultUri = 'mongodb://$dbAddress:27017/$dbName';
 
 final Matcher throwsMongoDartError = throwsA(TypeMatcher<MongoDartError>());
 
-Db db;
+Db? db;
 Uuid uuid = Uuid();
 List<String> usedCollectionNames = [];
 
@@ -40,19 +40,19 @@ String getRandomCollectionName() {
 void main() async {
   Future initializeDatabase() async {
     db = Db(DefaultUri);
-    await db.open();
+    await db!.open();
   }
 
   Future cleanupDatabase() async {
-    await db.close();
+    await db!.close();
   }
 
   group('Read Operations', () {
     var cannotRunTests = false;
     setUp(() async {
       await initializeDatabase();
-      if (db.masterConnection == null ||
-          !db.masterConnection.serverCapabilities.supportsOpMsg) {
+      if (db!.masterConnection == null ||
+          !db!.masterConnection!.serverCapabilities.supportsOpMsg) {
         cannotRunTests = true;
       }
     });
@@ -63,7 +63,7 @@ void main() async {
 
     test('Simple read', () async {
       var collectionName = getRandomCollectionName();
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
 
       var ret = await insertManyDocuments(collection, 10000);
       expect(ret.isSuccess, isTrue);
@@ -74,7 +74,7 @@ void main() async {
 
     test(r'Select with $where', () async {
       var collectionName = getRandomCollectionName();
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
 
       var ret = await insertManyDocuments(collection, 10000);
       expect(ret.isSuccess, isTrue);
@@ -88,7 +88,7 @@ void main() async {
 
     test(r'Select with $where - possible injection', () async {
       var collectionName = getRandomCollectionName();
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
 
       var ret = await insertManyDocuments(collection, 10000);
       expect(ret.isSuccess, isTrue);
@@ -105,7 +105,7 @@ void main() async {
 
     test('Simple read - using stream', () async {
       var collectionName = getRandomCollectionName();
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
 
       var ret = await insertManyDocuments(collection, 10000);
       expect(ret.isSuccess, isTrue);
@@ -119,7 +119,7 @@ void main() async {
     }, skip: cannotRunTests);
     test('Simple read - using stream from cursor', () async {
       var collectionName = getRandomCollectionName();
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
 
       var ret = await insertManyDocuments(collection, 10000);
       expect(ret.isSuccess, isTrue);
@@ -134,7 +134,7 @@ void main() async {
 
     test('Simple read error- using wrong stream from cursor', () async {
       var collectionName = getRandomCollectionName();
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
 
       var ret = await insertManyDocuments(collection, 10000);
       expect(ret.isSuccess, isTrue);
@@ -156,11 +156,11 @@ void main() async {
 
     test('Simple read from capped collection', () async {
       var collectionName = getRandomCollectionName();
-      var resultMap = await db.createCollection(collectionName,
+      var resultMap = await db!.createCollection(collectionName,
           createCollectionOptions:
               CreateCollectionOptions(capped: true, size: 5242880, max: 5000));
       expect(resultMap[keyOk], 1.0);
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
 
       await insertManyDocuments(collection, 10000);
       var result = await collection.modernFind().toList();
@@ -171,11 +171,11 @@ void main() async {
     group('Normal Cursor', () {
       test('Simple read from capped collection', () async {
         var collectionName = getRandomCollectionName();
-        var resultMap = await db.createCollection(collectionName,
+        var resultMap = await db!.createCollection(collectionName,
             createCollectionOptions: CreateCollectionOptions(
                 capped: true, size: 5242880, max: 5000));
         expect(resultMap[keyOk], 1.0);
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await insertManyDocuments(collection, 120);
 
@@ -197,7 +197,7 @@ void main() async {
         expect(resultCommand, isNotNull);
         expect(resultCommand[keyCursor], isNotNull);
 
-        Map cursorMap = resultCommand[keyCursor];
+        Map cursorMap = resultCommand[keyCursor] as Map<dynamic, dynamic>;
         expect(cursorMap[keyFirstBatch], isNull);
         expect(cursorMap[keyNextBatch], isNotEmpty);
         expect(cursorMap[keyNextBatch].length, 19);
@@ -211,11 +211,11 @@ void main() async {
     group('Tailable Cursor', () {
       test('Simple read from capped collection', () async {
         var collectionName = getRandomCollectionName();
-        var resultMap = await db.createCollection(collectionName,
+        var resultMap = await db!.createCollection(collectionName,
             createCollectionOptions: CreateCollectionOptions(
                 capped: true, size: 5242880, max: 5000));
         expect(resultMap[keyOk], 1.0);
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await insertManyDocuments(collection, 110);
         var doc = await FindOperation(collection,
@@ -228,7 +228,7 @@ void main() async {
 
         expect(cursor.state, State.OPEN);
 
-        var cursorResult = await cursor.nextObject();
+        var cursorResult = await (cursor.nextObject() as FutureOr<Map<String, Object>>);
         expect(cursor.state, State.OPEN);
         expect(cursor.cursorId.value, isPositive);
         expect(cursorResult['a'], 101);
@@ -262,11 +262,11 @@ void main() async {
       });
       test('Simple read from capped collection with awaitData', () async {
         var collectionName = getRandomCollectionName();
-        var resultMap = await db.createCollection(collectionName,
+        var resultMap = await db!.createCollection(collectionName,
             createCollectionOptions: CreateCollectionOptions(
                 capped: true, size: 5242880, max: 5000));
         expect(resultMap[keyOk], 1.0);
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await insertManyDocuments(collection, 110);
         var doc = await FindOperation(collection,
@@ -279,7 +279,7 @@ void main() async {
 
         expect(cursor.state, State.OPEN);
 
-        var cursorResult = await cursor.nextObject();
+        var cursorResult = await (cursor.nextObject() as FutureOr<Map<String, Object>>);
         expect(cursor.state, State.OPEN);
         expect(cursor.cursorId.value, isPositive);
         expect(cursorResult['a'], 101);
@@ -322,11 +322,11 @@ void main() async {
       // automatically closes the cursor if the result of the selection is empty
       test('Read from empty collection', () async {
         var collectionName = getRandomCollectionName();
-        var resultMap = await db.createCollection(collectionName,
+        var resultMap = await db!.createCollection(collectionName,
             createCollectionOptions: CreateCollectionOptions(
                 capped: true, size: 5242880, max: 5000));
         expect(resultMap[keyOk], 1.0);
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var cursor = ModernCursor(FindOperation(collection,
             findOptions: FindOptions(tailable: true)));
@@ -337,11 +337,11 @@ void main() async {
 
       test('Read from empty selection', () async {
         var collectionName = getRandomCollectionName();
-        var resultMap = await db.createCollection(collectionName,
+        var resultMap = await db!.createCollection(collectionName,
             createCollectionOptions: CreateCollectionOptions(
                 capped: true, size: 5242880, max: 5000));
         expect(resultMap[keyOk], 1.0);
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany([
           {'test': 1, 'state': 'A'},
@@ -368,8 +368,8 @@ void main() async {
     var cannotRunTests = false;
     setUp(() async {
       await initializeDatabase();
-      if (db.masterConnection == null ||
-          !db.masterConnection.serverCapabilities.supportsOpMsg) {
+      if (db!.masterConnection == null ||
+          !db!.masterConnection!.serverCapabilities.supportsOpMsg) {
         cannotRunTests = true;
       }
     });
@@ -380,7 +380,7 @@ void main() async {
 
     test('Simple Aggregate', () async {
       var collectionName = getRandomCollectionName();
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
 
       await collection.insertMany(<Map<String, dynamic>>[
         {'game': 'At the Gates of Loyang', 'cost': Rational.parse('15.20')},
@@ -400,14 +400,14 @@ void main() async {
 
     group('admin/diagnostic pipeline', () {
       test('currentOp', () async {
-        var stream = db.aggregate([
+        var stream = db!.aggregate([
           {
             r'$currentOp': {'allUsers': true, 'idleConnections': true}
           },
           {
             r'$match': {
               'active': true,
-              if (db.masterConnection.serverCapabilities.isShardedCluster)
+              if (db!.masterConnection!.serverCapabilities.isShardedCluster)
                 'op': 'getmore'
               else
                 'command.aggregate': 1
@@ -416,8 +416,8 @@ void main() async {
         ]);
 
         var resultList = await stream.toList();
-        if (db.masterConnection.serverCapabilities.fcv.compareTo('4.2') == -1) {
-          if (db.masterConnection.serverCapabilities.isShardedCluster) {
+        if (db!.masterConnection!.serverCapabilities.fcv!.compareTo('4.2') == -1) {
+          if (db!.masterConnection!.serverCapabilities.isShardedCluster) {
             // one command per shard
             expect(resultList, isNotEmpty);
             expect(resultList.first['op'], 'getmore');
@@ -426,7 +426,7 @@ void main() async {
             expect(resultList.first['op'], 'command');
           }
         } else {
-          if (db.masterConnection.serverCapabilities.isShardedCluster) {
+          if (db!.masterConnection!.serverCapabilities.isShardedCluster) {
             // one command per shard
             expect(resultList, isNotEmpty);
             expect(resultList.first['type'], 'op');
@@ -440,7 +440,7 @@ void main() async {
       });
 
       test('listLocalSessions', () async {
-        var result = db.aggregate([
+        var result = db!.aggregate([
           {
             r'$listLocalSessions': {'allUsers': true}
           },
@@ -457,7 +457,7 @@ void main() async {
     group('Normal Cursor', () {
       test('Aggregate', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var toInsert = <Map<String, dynamic>>[];
 
@@ -564,7 +564,7 @@ db.runCommand(
 
       test('Aggregate With Cursor Batch Size', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var toInsert = <Map<String, dynamic>>[];
 
@@ -673,7 +673,7 @@ db.runCommand(
 
       test('Aggregate To Stream', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var toInsert = <Map<String, dynamic>>[];
 
@@ -784,10 +784,10 @@ db.runCommand(
     }, skip: cannotRunTests);
 
     tearDownAll(() async {
-      await db.open();
+      await db!.open();
       await Future.forEach(usedCollectionNames,
-          (String collectionName) => db.collection(collectionName).drop());
-      await db.close();
+          (String collectionName) => db!.collection(collectionName).drop());
+      await db!.close();
     });
   });
 
@@ -796,12 +796,12 @@ db.runCommand(
     var isStandalone = false;
     setUp(() async {
       await initializeDatabase();
-      if (db.masterConnection == null ||
-          !db.masterConnection.serverCapabilities.supportsOpMsg) {
+      if (db!.masterConnection == null ||
+          !db!.masterConnection!.serverCapabilities.supportsOpMsg) {
         cannotRunTests = true;
       }
-      if (db.masterConnection != null &&
-          db.masterConnection.serverCapabilities.isStandalone) {
+      if (db!.masterConnection != null &&
+          db!.masterConnection!.serverCapabilities.isStandalone) {
         isStandalone = true;
       }
     });
@@ -816,7 +816,7 @@ db.runCommand(
           createCollectionOptions:
               CreateCollectionOptions(capped: true, size: 5242880, max: 5000));
       expect(resultMap[keyOk], 1.0); */
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
       await insertManyDocuments(collection, 3);
 
       var pipeline =
@@ -845,7 +845,7 @@ db.runCommand(
 
       var aResult = 3;
       var controller = stream.listen((changeEvent) {
-        Map fullDocument = changeEvent.fullDocument;
+        Map fullDocument = changeEvent.fullDocument!;
         expect(fullDocument['a'], aResult++);
 
         if (fullDocument['a'] == 3) {
@@ -884,7 +884,7 @@ db.runCommand(
 
     test('Change with match from collection with changeStream', () async {
       var collectionName = getRandomCollectionName();
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
       await insertManyDocuments(collection, 3);
 
       var pipeline =
@@ -916,7 +916,7 @@ db.runCommand(
 
       var aResult = 3;
       var controller = stream.listen((changeEvent) {
-        Map fullDocument = changeEvent.fullDocument;
+        Map fullDocument = changeEvent.fullDocument!;
 
         expect(fullDocument['a'], aResult++);
 
@@ -957,7 +957,7 @@ db.runCommand(
 
     test('Change with match from collection.watch()', () async {
       var collectionName = getRandomCollectionName();
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
       await insertManyDocuments(collection, 3);
 
       var pipeline = AggregationPipelineBuilder()
@@ -1015,10 +1015,10 @@ db.runCommand(
     }, skip: cannotRunTests);
 
     tearDownAll(() async {
-      await db.open();
+      await db!.open();
       await Future.forEach(usedCollectionNames,
-          (String collectionName) => db.collection(collectionName).drop());
-      await db.close();
+          (String collectionName) => db!.collection(collectionName).drop());
+      await db!.close();
     });
   });
 
@@ -1026,8 +1026,8 @@ db.runCommand(
     var cannotRunTests = false;
     setUp(() async {
       await initializeDatabase();
-      if (db.masterConnection == null ||
-          !db.masterConnection.serverCapabilities.supportsOpMsg) {
+      if (db!.masterConnection == null ||
+          !db!.masterConnection!.serverCapabilities.supportsOpMsg) {
         cannotRunTests = true;
       }
     });
@@ -1039,7 +1039,7 @@ db.runCommand(
     group('Command', () {
       test('All documents - Map result', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany(<Map<String, dynamic>>[
           {'game': 'At the Gates of Loyang', 'cost': Rational.parse('15.20')},
@@ -1056,7 +1056,7 @@ db.runCommand(
       }, skip: cannotRunTests);
       test('All documents - Class result', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany(<Map<String, dynamic>>[
           {'game': 'At the Gates of Loyang', 'cost': Rational.parse('15.20')},
@@ -1073,7 +1073,7 @@ db.runCommand(
       }, skip: cannotRunTests);
       test('Selected documents - Class result', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany(<Map<String, dynamic>>[
           {'game': 'At the Gates of Loyang', 'cost': Rational.parse('15.20')},
@@ -1091,7 +1091,7 @@ db.runCommand(
       }, skip: cannotRunTests);
       test('Skip documents and majority read concern - Class result', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany(<Map<String, dynamic>>[
           {'game': 'At the Gates of Loyang', 'cost': Rational.parse('15.20')},
@@ -1113,10 +1113,10 @@ db.runCommand(
       }, skip: cannotRunTests);
 
       tearDownAll(() async {
-        await db.open();
+        await db!.open();
         await Future.forEach(usedCollectionNames,
-            (String collectionName) => db.collection(collectionName).drop());
-        await db.close();
+            (String collectionName) => db!.collection(collectionName).drop());
+        await db!.close();
       });
     });
   });
@@ -1128,8 +1128,8 @@ db.runCommand(
     var isSharded = false;
     setUp(() async {
       await initializeDatabase();
-      if (db.masterConnection == null ||
-          !db.masterConnection.serverCapabilities.supportsOpMsg) {
+      if (db!.masterConnection == null ||
+          !db!.masterConnection!.serverCapabilities.supportsOpMsg) {
         cannotRunTests = true;
       }
       var serverFcv = db?.masterConnection?.serverCapabilities?.fcv ?? '0.0';
@@ -1149,7 +1149,7 @@ db.runCommand(
     group('Command', () {
       test('Return Distinct Values for a Field - Map result', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany(<Map<String, dynamic>>[
           {
@@ -1191,7 +1191,7 @@ db.runCommand(
 
       test('Return Distinct Values for a Field - Class result', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany(<Map<String, dynamic>>[
           {
@@ -1226,15 +1226,15 @@ db.runCommand(
 
         expect(result.ok, 1.0);
         expect(result.values, isNotNull);
-        expect(result.values.length, 2);
-        expect(result.values.first, 'A');
-        expect(result.values.last, 'B');
+        expect(result.values!.length, 2);
+        expect(result.values!.first, 'A');
+        expect(result.values!.last, 'B');
       }, skip: cannotRunTests);
 
       test('Return Distinct Values for an Embedded Field - Class result',
           () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany(<Map<String, dynamic>>[
           {
@@ -1269,15 +1269,15 @@ db.runCommand(
 
         expect(result.ok, 1.0);
         expect(result.values, isNotNull);
-        expect(result.values.length, 3);
-        expect(result.values.first, '111');
-        expect(result.values.last, '333');
+        expect(result.values!.length, 3);
+        expect(result.values!.first, '111');
+        expect(result.values!.last, '333');
       }, skip: cannotRunTests);
 
       test('Return Distinct Values for an Array Field - Class result',
           () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany(<Map<String, dynamic>>[
           {
@@ -1312,13 +1312,13 @@ db.runCommand(
 
         expect(result.ok, 1.0);
         expect(result.values, isNotNull);
-        expect(result.values.length, 3);
+        expect(result.values!.length, 3);
         if (running3_6 && !isSharded) {
-          expect(result.values.first, 'M');
-          expect(result.values.last, 'L');
+          expect(result.values!.first, 'M');
+          expect(result.values!.last, 'L');
         } else {
-          expect(result.values.first, 'L');
-          expect(result.values.last, 'S');
+          expect(result.values!.first, 'L');
+          expect(result.values!.last, 'S');
         }
       }, skip: cannotRunTests);
 
@@ -1326,7 +1326,7 @@ db.runCommand(
           'Selection with Distinct Values for an Embedded Field - Class result',
           () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany(<Map<String, dynamic>>[
           {
@@ -1361,13 +1361,13 @@ db.runCommand(
 
         expect(result.ok, 1.0);
         expect(result.values, isNotNull);
-        expect(result.values.length, 2);
-        expect(result.values.first, '111');
-        expect(result.values.last, '333');
+        expect(result.values!.length, 2);
+        expect(result.values!.first, '111');
+        expect(result.values!.last, '333');
       }, skip: cannotRunTests);
       test('Specify a collation - Class result', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await insertFrenchCafe(collection);
 
@@ -1378,22 +1378,22 @@ db.runCommand(
 
         expect(result.ok, 1.0);
         expect(result.values, isNotNull);
-        expect(result.values.length, 1);
-        expect(result.values.first, 'café');
+        expect(result.values!.length, 1);
+        expect(result.values!.first, 'café');
       }, skip: cannotRunTests);
 
       tearDownAll(() async {
-        await db.open();
+        await db!.open();
         await Future.forEach(usedCollectionNames,
-            (String collectionName) => db.collection(collectionName).drop());
-        await db.close();
+            (String collectionName) => db!.collection(collectionName).drop());
+        await db!.close();
       });
     });
 
     group('Collection helper', () {
       test('Return Distinct Values for a Field - Map result', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany(<Map<String, dynamic>>[
           {
@@ -1433,7 +1433,7 @@ db.runCommand(
 
       test('Return Distinct Values for a Field - Class result', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany(<Map<String, dynamic>>[
           {
@@ -1466,15 +1466,15 @@ db.runCommand(
 
         expect(result.ok, 1.0);
         expect(result.values, isNotNull);
-        expect(result.values.length, 2);
-        expect(result.values.first, 'A');
-        expect(result.values.last, 'B');
+        expect(result.values!.length, 2);
+        expect(result.values!.first, 'A');
+        expect(result.values!.last, 'B');
       }, skip: cannotRunTests);
 
       test('Return Distinct Values for an Embedded Field - Class result',
           () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany(<Map<String, dynamic>>[
           {
@@ -1507,15 +1507,15 @@ db.runCommand(
 
         expect(result.ok, 1.0);
         expect(result.values, isNotNull);
-        expect(result.values.length, 3);
-        expect(result.values.first, '111');
-        expect(result.values.last, '333');
+        expect(result.values!.length, 3);
+        expect(result.values!.first, '111');
+        expect(result.values!.last, '333');
       }, skip: cannotRunTests);
 
       test('Return Distinct Values for an Array Field - Class result',
           () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany(<Map<String, dynamic>>[
           {
@@ -1550,13 +1550,13 @@ db.runCommand(
 
         expect(result.ok, 1.0);
         expect(result.values, isNotNull);
-        expect(result.values.length, 3);
+        expect(result.values!.length, 3);
         if (running3_6 && !isSharded) {
-          expect(result.values.first, 'M');
-          expect(result.values.last, 'L');
+          expect(result.values!.first, 'M');
+          expect(result.values!.last, 'L');
         } else {
-          expect(result.values.first, 'L');
-          expect(result.values.last, 'S');
+          expect(result.values!.first, 'L');
+          expect(result.values!.last, 'S');
         }
       }, skip: cannotRunTests);
 
@@ -1564,7 +1564,7 @@ db.runCommand(
           'Selection with Distinct Values for an Embedded Field - Class result',
           () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany(<Map<String, dynamic>>[
           {
@@ -1598,13 +1598,13 @@ db.runCommand(
 
         expect(result.ok, 1.0);
         expect(result.values, isNotNull);
-        expect(result.values.length, 2);
-        expect(result.values.first, '111');
-        expect(result.values.last, '333');
+        expect(result.values!.length, 2);
+        expect(result.values!.first, '111');
+        expect(result.values!.last, '333');
       }, skip: cannotRunTests);
       test('Specify a collation - Class result', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await insertFrenchCafe(collection);
 
@@ -1614,15 +1614,15 @@ db.runCommand(
 
         expect(result.ok, 1.0);
         expect(result.values, isNotNull);
-        expect(result.values.length, 1);
-        expect(result.values.first, 'café');
+        expect(result.values!.length, 1);
+        expect(result.values!.first, 'café');
       }, skip: cannotRunTests);
 
       tearDownAll(() async {
-        await db.open();
+        await db!.open();
         await Future.forEach(usedCollectionNames,
-            (String collectionName) => db.collection(collectionName).drop());
-        await db.close();
+            (String collectionName) => db!.collection(collectionName).drop());
+        await db!.close();
       });
     });
   });

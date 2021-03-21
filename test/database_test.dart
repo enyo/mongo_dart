@@ -18,7 +18,7 @@ const DefaultUri = 'mongodb://$dbAddress:27017/$dbName';
 //var throwsMongoDartError = throwsA((e) => e is MongoDartError);
 final Matcher throwsMongoDartError = throwsA(TypeMatcher<MongoDartError>());
 
-Db db;
+Db? db;
 Uuid uuid = Uuid();
 List<String> usedCollectionNames = [];
 
@@ -91,12 +91,12 @@ Future testDbConnectionString() async {
 
 Future testGetCollectionInfos() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   await collection.insertAll([
     {'a': 1}
   ]);
-  var collectionInfos = await db.getCollectionInfos({'name': collectionName});
+  var collectionInfos = await db!.getCollectionInfos({'name': collectionName});
 
   expect(collectionInfos, hasLength(1));
 
@@ -105,54 +105,54 @@ Future testGetCollectionInfos() async {
 
 Future testRemove() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   await collection.insertAll([
     {'a': 1}
   ]);
 
-  var collectionInfos = await db.getCollectionInfos({'name': collectionName});
+  var collectionInfos = await db!.getCollectionInfos({'name': collectionName});
   expect(collectionInfos, hasLength(1));
 
-  await db.removeFromCollection(collectionName);
+  await db!.removeFromCollection(collectionName);
 
   var allCollectionDocuments = await collection.find().toList();
   expect(allCollectionDocuments, isEmpty);
 }
 
 Future testDropDatabase() async {
-  await db.drop();
+  await db!.drop();
 }
 
 Future testGetNonce() async {
-  var result = await db.getNonce();
+  var result = await db!.getNonce();
   expect(result['ok'], 1);
 }
 
 Future getBuildInfo() async {
-  var result = await db.getBuildInfo();
+  var result = await db!.getBuildInfo();
   expect(result['ok'], 1);
 }
 
 Future testIsMaster() async {
-  var result = await db.isMaster();
+  var result = await db!.isMaster();
   expect(result['ok'], 1);
 }
 
 Future<void> testServerStatus() async {
-  Map<String, dynamic> dbStatus = await db.serverStatus();
+  Map<String, dynamic> dbStatus = await db!.serverStatus();
   if (dbStatus != null && dbStatus.isNotEmpty && dbStatus['ok'] == 1.0) {
     expect(dbStatus['ok'], 1.0);
-    expect(dbStatus['version'], db.masterConnection.serverStatus.version);
-    expect(dbStatus['process'], db.masterConnection.serverStatus.process);
-    expect(dbStatus['host'], db.masterConnection.serverStatus.host);
-    Map storageEngineMap = dbStatus['storageEngine'];
+    expect(dbStatus['version'], db!.masterConnection!.serverStatus.version);
+    expect(dbStatus['process'], db!.masterConnection!.serverStatus.process);
+    expect(dbStatus['host'], db!.masterConnection!.serverStatus.host);
+    Map? storageEngineMap = dbStatus['storageEngine'];
     if (storageEngineMap != null && storageEngineMap['name'] == 'wiredTiger') {
       expect(storageEngineMap['persistent'],
-          db.masterConnection.serverStatus.isPersistent);
+          db!.masterConnection!.serverStatus.isPersistent);
       if (dbStatus['version'].compareTo('4.0') > 0) {
         expect(dbStatus['wiredTiger']['log']['maximum log file size'] > 0,
-            db.masterConnection.serverStatus.isJournaled);
+            db!.masterConnection!.serverStatus.isJournaled);
       }
     }
   }
@@ -160,19 +160,19 @@ Future<void> testServerStatus() async {
 
 DbCollection testCollectionCreation() {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
   return collection;
 }
 
 Future testEachOnEmptyCollection() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var count = 0;
   var sum = 0;
 
   await for (var document in collection.find()) {
-    sum += document['a'] as int;
+    sum += (document['a'] as int?)!;
     count++;
   }
 
@@ -182,7 +182,7 @@ Future testEachOnEmptyCollection() async {
 
 Future testFindEachWithThenClause() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var count = 0;
   var sum = 0;
@@ -193,7 +193,7 @@ Future testFindEachWithThenClause() async {
   ]);
 
   await for (var document in collection.find()) {
-    sum += document['score'] as int;
+    sum += (document['score'] as int?)!;
     count++;
   }
 
@@ -203,7 +203,7 @@ Future testFindEachWithThenClause() async {
 
 Future testDateTime() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   await collection.insertAll([
     {'day': 1, 'posted_on': DateTime.utc(2013, 1, 1)},
@@ -227,7 +227,7 @@ Future testDateTime() async {
 
 void testFindEach() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var count = 0;
   var sum = 0;
@@ -239,7 +239,7 @@ void testFindEach() async {
 
   await for (var document in collection.find()) {
     count++;
-    sum += document['score'] as int;
+    sum += (document['score'] as int?)!;
   }
 
   expect(count, 3);
@@ -248,7 +248,7 @@ void testFindEach() async {
 
 Future testFindStream() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var count = 0;
   var sum = 0;
@@ -260,7 +260,7 @@ Future testFindStream() async {
 
   await for (var document in collection.find()) {
     count++;
-    sum += document['score'] as int;
+    sum += (document['score'] as int?)!;
   }
 
   expect(count, 3);
@@ -270,12 +270,12 @@ Future testFindStream() async {
 Future testDrop() async {
   var collectionName = getRandomCollectionName();
 
-  await db.dropCollection(collectionName);
+  await db!.dropCollection(collectionName);
 }
 
 Future testSaveWithIntegerId() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var toInsert = <Map<String, dynamic>>[
     {'_id': 1, 'name': 'a', 'value': 10},
@@ -285,28 +285,28 @@ Future testSaveWithIntegerId() async {
   ];
 
   await collection.insertAll(toInsert);
-  var result = await collection.findOne({'name': 'c'});
+  var result = await (collection.findOne({'name': 'c'}) as FutureOr<Map<String, dynamic>>);
   expect(result['value'], 30);
 
-  result = await collection.findOne({'_id': 3});
+  result = await (collection.findOne({'_id': 3}) as FutureOr<Map<String, dynamic>>);
   result['value'] = 2;
   await collection.save(result);
 
-  result = await collection.findOne({'_id': 3});
+  result = await (collection.findOne({'_id': 3}) as FutureOr<Map<String, dynamic>>);
   expect(result['value'], 2);
 
-  result = await collection.findOne(where.eq('_id', 3));
+  result = await (collection.findOne(where.eq('_id', 3)) as FutureOr<Map<String, dynamic>>);
   expect(result['value'], 2);
 
   final notThere = {'_id': 5, 'name': 'd', 'value': 50};
   await collection.save(notThere);
-  result = await collection.findOne(where.eq('_id', 5));
+  result = await (collection.findOne(where.eq('_id', 5)) as FutureOr<Map<String, dynamic>>);
   expect(result['value'], 50);
 }
 
 Future testSaveWithObjectId() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var toInsert = <Map<String, dynamic>>[
     {'name': 'a', 'value': 10},
@@ -316,22 +316,22 @@ Future testSaveWithObjectId() async {
   ];
 
   await collection.insertAll(toInsert);
-  var result = await collection.findOne({'name': 'c'});
+  var result = await (collection.findOne({'name': 'c'}) as FutureOr<Map<String, dynamic>>);
   expect(result['value'], 30);
 
   var id = result['_id'];
-  result = await collection.findOne({'_id': id});
+  result = await (collection.findOne({'_id': id}) as FutureOr<Map<String, dynamic>>);
   expect(result['value'], 30);
 
   result['value'] = 1;
   await collection.save(result);
-  result = await collection.findOne({'_id': id});
+  result = await (collection.findOne({'_id': id}) as FutureOr<Map<String, dynamic>>);
   expect(result['value'], 1);
 }
 
 Future testInsertWithObjectId() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var id;
   var objectToSave = <String, dynamic>{
@@ -342,7 +342,7 @@ Future testInsertWithObjectId() async {
   id = objectToSave['_id'];
   await collection.insert(objectToSave);
 
-  var result = await collection.findOne(where.eq('name', 'a'));
+  var result = await (collection.findOne(where.eq('name', 'a')) as FutureOr<Map<String, dynamic>>);
 
   expect(result['_id'], id);
   expect(result['value'], 10);
@@ -350,7 +350,7 @@ Future testInsertWithObjectId() async {
 
 Future testCount() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   await insertManyDocuments(collection, 167);
 
@@ -360,7 +360,7 @@ Future testCount() async {
 
 Future testDistinct() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   await collection.insert({'foo': 1});
   await collection.insert({'foo': 2});
@@ -378,7 +378,7 @@ Future testDistinct() async {
 
 Future testAggregate() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var toInsert = <Map<String, dynamic>>[];
 
@@ -469,7 +469,7 @@ db.runCommand(
 
 Future testAggregateWithCursor() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var toInsert = <Map<String, dynamic>>[];
 
@@ -560,10 +560,10 @@ db.runCommand(
 
 Future testAggregateToStream() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var skipTest = false;
-  var buildInfo = await db.getBuildInfo();
+  var buildInfo = await db!.getBuildInfo();
   var versionArray = buildInfo['versionArray'];
   var versionNum = (versionArray[0] as num) * 100 + (versionArray[1] as num);
   if (versionNum < 206) {
@@ -666,18 +666,18 @@ db.runCommand(
 
 Future testSkip() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   await insertManyDocuments(collection, 600);
 
-  var result = await collection.findOne(where.sortBy('a').skip(300));
+  var result = await (collection.findOne(where.sortBy('a').skip(300)) as FutureOr<Map<String, dynamic>>);
 
   expect(result['a'], 300);
 }
 
 Future testUpdateWithUpsert() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var result = await collection.insert({'name': 'a', 'value': 10});
   expect(result['n'], 0);
@@ -701,7 +701,7 @@ Future testUpdateWithUpsert() async {
 
 Future testUpdateWithMultiUpdate() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var result = await collection.insertAll([
     {'key': 'a', 'value': 'initial_value1'},
@@ -750,7 +750,7 @@ Future testUpdateWithMultiUpdate() async {
 
 Future testLimitWithSortByAndSkip() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var counter = 0;
   Cursor cursor;
@@ -776,7 +776,7 @@ Future insertManyDocuments(DbCollection collection, int numberOfRecords) async {
 
 Future testLimit() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var counter = 0;
   Cursor cursor;
@@ -792,7 +792,7 @@ Future testLimit() async {
 
 Future<Cursor> testCursorCreation() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var cursor =
       await ModernCursor(FindOperation(collection, filter: {'ping': 1}));
@@ -804,7 +804,7 @@ Future<Cursor> testCursorCreation() async {
 
 Future testCursorClosing() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   await insertManyDocuments(collection, 10000);
 
@@ -827,7 +827,7 @@ Future testCursorClosing() async {
 
   expect(modernCursor.state, State.INIT);
 
-  var cursorResult = await modernCursor.nextObject();
+  var cursorResult = await (modernCursor.nextObject() as FutureOr<Map<String, Object>>);
   expect(modernCursor.state, State.OPEN);
   expect(modernCursor.cursorId.value, isPositive);
   expect(cursorResult['a'], 0);
@@ -842,17 +842,17 @@ Future testCursorClosing() async {
 }
 
 Future testPingRaw() async {
-  var collection = db.collection('\$cmd');
+  var collection = db!.collection('\$cmd');
   var cursor = Cursor(db, collection, where.eq('ping', 1).limit(1));
   var queryMessage = cursor.generateQueryMessage();
 
-  var result = await db.queryMessage(queryMessage);
+  var result = await db!.queryMessage(queryMessage);
 
   expect(result.documents[0], containsPair('ok', 1));
 }
 
 Future testNextObject() async {
-  var collection = db.collection('\$cmd');
+  var collection = db!.collection('\$cmd');
   var cursor = Cursor(db, collection, where.eq('ping', 1).limit(1));
 
   var newCursor = await cursor.nextObject();
@@ -862,7 +862,7 @@ Future testNextObject() async {
 
 Future testNextObjectToEnd() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   Cursor cursor;
   await collection.insert({'a': 1});
@@ -885,7 +885,7 @@ Future testNextObjectToEnd() async {
 
 Future testCursorWithOpenServerCursor() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   await insertManyDocuments(collection, 1000);
   var cursor = Cursor(db, collection, where.limit(10));
@@ -898,7 +898,7 @@ Future testCursorWithOpenServerCursor() async {
 
 Future testCursorGetMore() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var count = 0;
   var cursor = Cursor(db, collection, where.limit(10));
@@ -919,13 +919,13 @@ void testDbCommandCreation() {
   var collectionName = getRandomCollectionName();
 
   var dbCommand = DbCommand(db, collectionName, 0, 0, 1, {}, {});
-  expect(dbCommand.collectionNameBson.value, '$dbName.$collectionName');
+  expect(dbCommand.collectionNameBson!.value, '$dbName.$collectionName');
 }
 
 Future testPingDbCommand() async {
   var pingCommand = DbCommand.createPingCommand(db);
 
-  var result = await db.queryMessage(pingCommand);
+  var result = await db!.queryMessage(pingCommand);
 
   expect(result.documents[0], containsPair('ok', 1));
 }
@@ -933,15 +933,15 @@ Future testPingDbCommand() async {
 Future testDropDbCommand() async {
   var command = DbCommand.createDropDatabaseCommand(db);
 
-  var result = await db.queryMessage(command);
+  var result = await db!.queryMessage(command);
 
-  expect(result.documents[0]['ok'], 1);
+  expect(result.documents[0]!['ok'], 1);
 }
 
 Future testIsMasterDbCommand() async {
   var isMasterCommand = DbCommand.createIsMasterCommand(db);
 
-  var result = await db.queryMessage(isMasterCommand);
+  var result = await db!.queryMessage(isMasterCommand);
 
   expect(result.documents[0], containsPair('ok', 1));
 }
@@ -962,20 +962,20 @@ void testAuthComponents() {
 
 Future testAuthenticationWithUri() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   await collection.insert({'a': 1});
   await collection.insert({'a': 2});
   await collection.insert({'a': 3});
 
-  var foundValue = await collection.findOne();
+  var foundValue = await (collection.findOne() as FutureOr<Map<String, dynamic>>);
 
   expect(foundValue['a'], isNotNull);
 }
 
 Future testGetIndexes() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   await insertManyDocuments(collection, 100);
 
@@ -986,7 +986,7 @@ Future testGetIndexes() async {
 
 Future testIndexCreation() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var toInsert = <Map<String, dynamic>>[];
   for (var n = 0; n < 6; n++) {
@@ -997,13 +997,13 @@ Future testIndexCreation() async {
   }
   await collection.insertAll(toInsert);
 
-  var res = await db.createIndex(collectionName, key: 'a');
+  var res = await db!.createIndex(collectionName, key: 'a');
   expect(res['ok'], 1.0);
 
-  res = await db.createIndex(collectionName, keys: {'a': -1, 'embedded.c': 1});
+  res = await db!.createIndex(collectionName, keys: {'a': -1, 'embedded.c': 1});
   expect(res['ok'], 1.0);
 
-  res = await db.createIndex(collectionName, keys: {
+  res = await db!.createIndex(collectionName, keys: {
     'a': -1
   }, partialFilterExpression: {
     'embedded.c': {r'$exists': true}
@@ -1013,15 +1013,15 @@ Future testIndexCreation() async {
   var indexes = await collection.getIndexes();
   expect(indexes.length, 4);
 
-  res = (await db.ensureIndex(collectionName, keys: {'a': -1, 'embedded.c': 1}))
+  res = (await db!.ensureIndex(collectionName, keys: {'a': -1, 'embedded.c': 1}))
       as Map<String, dynamic>;
   expect(res['ok'], 1.0);
 }
 
 Future testIndexCreationOnCollection() async {
-  if (db.masterConnection.serverCapabilities.supportsOpMsg) {
+  if (db!.masterConnection!.serverCapabilities.supportsOpMsg) {
     var collectionName = getRandomCollectionName();
-    var collection = db.collection(collectionName);
+    var collection = db!.collection(collectionName);
 
     var toInsert = <Map<String, dynamic>>[];
     for (var n = 0; n < 6; n++) {
@@ -1067,7 +1067,7 @@ Future testIndexCreationOnCollection() async {
 
 Future testEnsureIndexWithIndexCreation() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var toInsert = <Map<String, dynamic>>[];
   for (var n = 0; n < 6; n++) {
@@ -1080,15 +1080,15 @@ Future testEnsureIndexWithIndexCreation() async {
   await collection.insertAll(toInsert);
 
   var result =
-      await db.ensureIndex(collectionName, keys: {'a': -1, 'embedded.c': 1});
+      await db!.ensureIndex(collectionName, keys: {'a': -1, 'embedded.c': 1});
   expect(result['ok'], 1.0);
   expect(result['err'], isNull);
 }
 
 Future testIndexCreationErrorHandling() async {
   var collectionName = getRandomCollectionName();
-  await db.dropCollection(collectionName);
-  var collection = db.collection(collectionName);
+  await db!.dropCollection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var toInsert = <Map<String, dynamic>>[];
   for (var n = 0; n < 6; n++) {
@@ -1100,7 +1100,7 @@ Future testIndexCreationErrorHandling() async {
   await collection.insertAll(toInsert);
 
   try {
-    await db.ensureIndex(collectionName, key: 'a', unique: true);
+    await db!.ensureIndex(collectionName, key: 'a', unique: true);
     fail("Expecting an error, but wasn't thrown");
   } on TestFailure {
     rethrow;
@@ -1112,7 +1112,7 @@ Future testIndexCreationErrorHandling() async {
 
 Future testTextIndex() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var toInsert = <Map<String, dynamic>>[];
   for (var n = 0; n < 6; n++) {
@@ -1148,7 +1148,7 @@ Future testTextIndex() async {
 
 Future testTtlIndex() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   // Here the CreateIndexOptions is set to null, but you can pass other
   // parameters if needed
@@ -1184,7 +1184,7 @@ Future testTtlIndex() async {
 
 Future testSafeModeUpdate() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   for (var n = 0; n < 6; n++) {
     await collection.insert({
@@ -1204,7 +1204,7 @@ Future testSafeModeUpdate() async {
 
 Future testFindWithFieldsClause() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   await collection.insertAll([
     {'name': 'Vadim', 'score': 4},
@@ -1213,7 +1213,7 @@ Future testFindWithFieldsClause() async {
   ]);
 
   var result =
-      await collection.findOne(where.eq('name', 'Vadim').fields(['score']));
+      await (collection.findOne(where.eq('name', 'Vadim').fields(['score'])) as FutureOr<Map<String, dynamic>>);
 
   expect(result['name'], isNull);
   expect(result['score'], 4);
@@ -1221,7 +1221,7 @@ Future testFindWithFieldsClause() async {
 
 Future testFindAndModify() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
   var result;
 
   await collection.insertAll([
@@ -1282,9 +1282,9 @@ Future testFindAndModify() async {
 
 Future testSimpleQuery() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
-  ObjectId id;
+  ObjectId? id;
   var toInsert = <Map<String, dynamic>>[];
   for (var n = 0; n < 10; n++) {
     toInsert.add({'my_field': n, 'str_field': 'str_$n'});
@@ -1297,12 +1297,12 @@ Future testSimpleQuery() async {
   expect(result.length, 4);
   expect(result[0]['my_field'], 6);
 
-  var result1 = await collection.findOne(where.eq('my_field', 3));
+  var result1 = await (collection.findOne(where.eq('my_field', 3)) as FutureOr<Map<String, dynamic>>);
   expect(result1, isNotNull);
   expect(result1['my_field'], 3);
-  id = result1['_id'] as ObjectId;
+  id = result1['_id'] as ObjectId?;
 
-  var result2 = await collection.findOne(where.id(id));
+  var result2 = await (collection.findOne(where.id(id!)) as FutureOr<Map<String, dynamic>>);
   expect(result2, isNotNull);
   expect(result2['my_field'], 3);
 
@@ -1313,7 +1313,7 @@ Future testSimpleQuery() async {
 
 Future testCompoundQuery() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   var toInsert = <Map<String, dynamic>>[];
   for (var n = 0; n < 10; n++) {
@@ -1327,40 +1327,40 @@ Future testCompoundQuery() async {
       .toList();
   expect(result.length, 3);
 
-  var result1 = await collection.findOne(where
+  var result1 = await (collection.findOne(where
       .gt('my_field', 8)
       .or(where.lt('my_field', 2))
-      .and(where.eq('str_field', 'str_1')));
+      .and(where.eq('str_field', 'str_1'))) as FutureOr<Map<String, dynamic>>);
   expect(result1, isNotNull);
   expect(result1['my_field'], 1);
 }
 
 Future testFieldLevelUpdateSimple() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
-  ObjectId id;
+  ObjectId? id;
   var result = await collection.insert({'name': 'a', 'value': 10});
   expect(result['n'], 0);
 
-  result = await collection.findOne({'name': 'a'});
+  result = await (collection.findOne({'name': 'a'}) as FutureOr<Map<String, dynamic>>);
   expect(result, isNotNull);
 
-  id = result['_id'] as ObjectId;
-  result = await collection.update(where.id(id), modify.set('name', 'BBB'));
+  id = result['_id'] as ObjectId?;
+  result = await collection.update(where.id(id!), modify.set('name', 'BBB'));
   expect(result['updatedExisting'], true);
   expect(result['n'], 1);
 
-  result = await collection.findOne(where.id(id));
+  result = await (collection.findOne(where.id(id)) as FutureOr<Map<String, dynamic>>);
   expect(result, isNotNull);
   expect(result['name'], 'BBB');
 }
 
 Future testQueryOnClosedConnection() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
-  await db.close();
+  await db!.close();
   expect(
       () async => collection.find().toList(),
       throwsA((MongoDartError e) =>
@@ -1369,9 +1369,9 @@ Future testQueryOnClosedConnection() async {
 
 Future testUpdateOnClosedConnection() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
-  await db.close();
+  await db!.close();
   try {
     await collection.insert({'test': 'test'});
   } catch (e) {
@@ -1382,11 +1382,11 @@ Future testUpdateOnClosedConnection() async {
 
 Future testReopeningDb() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
   await collection.insert({'one': 'test'});
-  await db.close();
-  await db.open();
+  await db!.close();
+  await db!.open();
 
   var result = await collection.findOne();
 
@@ -1395,9 +1395,9 @@ Future testReopeningDb() async {
 
 Future testDbNotOpen() async {
   var collectionName = getRandomCollectionName();
-  var collection = db.collection(collectionName);
+  var collection = db!.collection(collectionName);
 
-  await db.close();
+  await db!.close();
   expect(
       () async => collection.findOne(),
       throwsA((MongoDartError e) =>
@@ -1429,14 +1429,14 @@ Future testDbOpenWhileStateIsOpening() {
 void testInvalidIndexCreationErrorHandling() {
   var collectionName = getRandomCollectionName();
 
-  expect(() async => db.createIndex(collectionName /*, key: 'a'*/),
+  expect(() async => db!.createIndex(collectionName /*, key: 'a'*/),
       throwsA((e) => e is ArgumentError));
 }
 
 void testInvalidIndexCreationErrorHandling1() {
   var collectionName = getRandomCollectionName();
 
-  expect(() async => db.createIndex(collectionName, key: 'a', keys: {'a': -1}),
+  expect(() async => db!.createIndex(collectionName, key: 'a', keys: {'a': -1}),
       throwsA((e) => e is ArgumentError));
 }
 
@@ -1465,11 +1465,11 @@ Future testFindOneWhileStateIsOpening() async {
 void main() async {
   Future initializeDatabase() async {
     db = Db(DefaultUri);
-    await db.open();
+    await db!.open();
   }
 
   Future cleanupDatabase() async {
-    await db.close();
+    await db!.close();
   }
 
   group('A', () {
@@ -1583,13 +1583,13 @@ void main() async {
 
     tearDown(() async {
       try {
-        await db.open();
+        await db!.open();
       } catch (e) {
         // db possibly already open
       }
 
       try {
-        await db.close();
+        await db!.close();
       } catch (e) {
         // db possibly already closed
       }
@@ -1611,9 +1611,9 @@ void main() async {
   });
 
   tearDownAll(() async {
-    await db.open();
+    await db!.open();
     await Future.forEach(usedCollectionNames,
-        (String collectionName) => db.collection(collectionName).drop());
-    await db.close();
+        (String collectionName) => db!.collection(collectionName).drop());
+    await db!.close();
   });
 }

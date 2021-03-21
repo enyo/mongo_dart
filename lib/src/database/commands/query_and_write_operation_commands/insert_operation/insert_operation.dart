@@ -7,10 +7,10 @@ import 'insert_options.dart';
 
 class InsertOperation extends CommandOperation {
   InsertOperation(DbCollection collection, this.documents,
-      {InsertOptions insertOptions, Map<String, Object> rawOptions})
+      {InsertOptions? insertOptions, Map<String, Object?>? rawOptions})
       : super(
             collection.db,
-            <String, Object>{
+            <String, Object?>{
               ...?insertOptions?.getOptions(collection.db),
               ...?rawOptions
             },
@@ -23,15 +23,15 @@ class InsertOperation extends CommandOperation {
     ids = List(documents.length);
     for (var idx = 0; idx < documents.length; idx++) {
       documents[idx][key_id] ??= ObjectId();
-      ids[idx] = documents[idx][key_id];
+      ids![idx] = documents[idx][key_id];
     }
   }
-  List<Map<String, Object>> documents;
-  List ids;
+  List<Map<String, Object?>> documents;
+  List? ids;
 
   @override
-  Map<String, Object> $buildCommand() => <String, Object>{
-        keyInsert: collection.collectionName,
+  Map<String, Object?> $buildCommand() => <String, Object?>{
+        keyInsert: collection!.collectionName,
         keyDocuments: documents
       };
 

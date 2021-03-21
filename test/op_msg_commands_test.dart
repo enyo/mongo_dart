@@ -21,7 +21,7 @@ const DefaultUri = 'mongodb://$dbAddress:27017/$dbName';
 
 final Matcher throwsMongoDartError = throwsA(TypeMatcher<MongoDartError>());
 
-Db db;
+Db? db;
 Uuid uuid = Uuid();
 List<String> usedCollectionNames = [];
 
@@ -34,7 +34,7 @@ String getRandomCollectionName() {
 void main() async {
   Future initializeDatabase() async {
     db = Db(DefaultUri);
-    await db.open();
+    await db!.open();
   }
 
   Future insertManyDocuments(
@@ -48,7 +48,7 @@ void main() async {
   }
 
   Future cleanupDatabase() async {
-    await db.close();
+    await db!.close();
   }
 
   group('Commands', () {
@@ -64,7 +64,7 @@ void main() async {
       group('Kill cursor Command:', () {
         test('test on existing cursor', () async {
           var collectionName = getRandomCollectionName();
-          var collection = db.collection(collectionName);
+          var collection = db!.collection(collectionName);
 
           await insertManyDocuments(collection, 10000);
 
@@ -72,7 +72,7 @@ void main() async {
 
           expect(cursor.state, State.INIT);
 
-          var cursorResult = await cursor.nextObject();
+          var cursorResult = await (cursor.nextObject() as FutureOr<Map<String, Object>>);
           expect(cursor.state, State.OPEN);
           expect(cursor.cursorId.value, isPositive);
           expect(cursorResult['a'], 0);
@@ -88,7 +88,7 @@ void main() async {
         });
         test('test on small cursor', () async {
           var collectionName = getRandomCollectionName();
-          var collection = db.collection(collectionName);
+          var collection = db!.collection(collectionName);
           var command = KillCursorsCommand(collection, [BsonLong(1)]);
           var result = await command.execute();
           expect(result, isNotNull);
@@ -100,7 +100,7 @@ void main() async {
         });
         test('test on non existing cursor', () async {
           var collectionName = getRandomCollectionName();
-          var collection = db.collection(collectionName);
+          var collection = db!.collection(collectionName);
           var command =
               KillCursorsCommand(collection, [BsonLong(111111111111)]);
           var result = await command.execute();
@@ -116,7 +116,7 @@ void main() async {
         // At present is not listed
         test('test on diff cursor', () async {
           var collectionName = getRandomCollectionName();
-          var collection = db.collection(collectionName);
+          var collection = db!.collection(collectionName);
           await insertManyDocuments(collection, 10000);
           var cursor = await ModernCursor(FindOperation(collection));
           expect(cursor.state, State.INIT);
@@ -133,7 +133,7 @@ void main() async {
 
         test('test with return Object on small cursor', () async {
           var collectionName = getRandomCollectionName();
-          var collection = db.collection(collectionName);
+          var collection = db!.collection(collectionName);
           var command = KillCursorsCommand(collection, [BsonLong(1)]);
           var result = await command.executeDocument();
           expect(result, isNotNull);
@@ -145,7 +145,7 @@ void main() async {
         });
         test('test with return Object on non existing cursor', () async {
           var collectionName = getRandomCollectionName();
-          var collection = db.collection(collectionName);
+          var collection = db!.collection(collectionName);
           var command = KillCursorsCommand(collection, [BsonLong(-1)]);
           var result = await command.executeDocument();
           expect(result, isNotNull);
@@ -159,7 +159,7 @@ void main() async {
       group('get more Command:', () {
         test('test on existing cursor', () async {
           var collectionName = getRandomCollectionName();
-          var collection = db.collection(collectionName);
+          var collection = db!.collection(collectionName);
 
           await insertManyDocuments(collection, 10000);
 
@@ -167,7 +167,7 @@ void main() async {
 
           expect(cursor.state, State.INIT);
 
-          var cursorResult = await cursor.nextObject();
+          var cursorResult = await (cursor.nextObject() as FutureOr<Map<String, Object>>);
           expect(cursor.state, State.OPEN);
           expect(cursor.cursorId.value, isPositive);
           expect(cursorResult['a'], 0);
@@ -177,14 +177,14 @@ void main() async {
           expect(result, isNotNull);
           expect(result[keyCursor], isNotNull);
 
-          Map cursorMap = result[keyCursor];
+          Map cursorMap = result[keyCursor] as Map<dynamic, dynamic>;
           expect(cursorMap[keyFirstBatch], isNull);
           expect(cursorMap[keyNextBatch], isNotEmpty);
           expect(cursorMap[keyNextBatch].length, 101);
         });
         test('test on non existing cursor', () async {
           var collectionName = getRandomCollectionName();
-          var collection = db.collection(collectionName);
+          var collection = db!.collection(collectionName);
 
           var command = GetMoreCommand(collection, BsonLong(1));
           var result = await command.execute();
@@ -195,7 +195,7 @@ void main() async {
         });
         test('test batch size option', () async {
           var collectionName = getRandomCollectionName();
-          var collection = db.collection(collectionName);
+          var collection = db!.collection(collectionName);
 
           await insertManyDocuments(collection, 10000);
 
@@ -203,7 +203,7 @@ void main() async {
 
           expect(cursor.state, State.INIT);
 
-          var cursorResult = await cursor.nextObject();
+          var cursorResult = await (cursor.nextObject() as FutureOr<Map<String, Object>>);
           expect(cursor.state, State.OPEN);
           expect(cursor.cursorId.value, isPositive);
           expect(cursorResult['a'], 0);
@@ -213,23 +213,23 @@ void main() async {
               getMoreOptions: options);
           var result = await command.executeDocument();
           expect(result, isNotNull);
-          var cursorRes = result.cursor;
+          var cursorRes = result.cursor!;
           expect(cursorRes, isNotNull);
           expect(cursorRes.nextBatch, isNotEmpty);
-          expect(cursorRes.nextBatch.length, 10);
+          expect(cursorRes.nextBatch!.length, 10);
 
           options = GetMoreOptions(batchSize: 200);
           command = GetMoreCommand(collection, cursor.cursorId,
               getMoreOptions: options);
           result = await command.executeDocument();
           expect(result, isNotNull);
-          cursorRes = result.cursor;
+          cursorRes = result.cursor!;
           expect(cursorRes, isNotNull);
-          expect(cursorRes.nextBatch.length, 200);
+          expect(cursorRes.nextBatch!.length, 200);
         });
         test('test huge batch size', () async {
           var collectionName = getRandomCollectionName();
-          var collection = db.collection(collectionName);
+          var collection = db!.collection(collectionName);
 
           await insertManyDocuments(collection, 10000);
 
@@ -241,14 +241,14 @@ void main() async {
               getMoreOptions: options);
           var result = await command.executeDocument();
           expect(result, isNotNull);
-          var cursorRes = result.cursor;
+          var cursorRes = result.cursor!;
           expect(cursorRes, isNotNull);
           expect(cursorRes.nextBatch, isNotEmpty);
-          expect(cursorRes.nextBatch.length, 9999);
+          expect(cursorRes.nextBatch!.length, 9999);
         });
         test('test error', () async {
           var collectionName = getRandomCollectionName();
-          var collection = db.collection(collectionName);
+          var collection = db!.collection(collectionName);
 
           await insertManyDocuments(collection, 10000);
 
@@ -258,9 +258,9 @@ void main() async {
           var command = GetMoreCommand(collection, cursor.cursorId);
           var result = await command.executeDocument();
           expect(result, isNotNull);
-          var cursorRes = result.cursor;
+          var cursorRes = result.cursor!;
           expect(cursorRes.nextBatch, isNotEmpty);
-          expect(cursorRes.nextBatch.length, 101);
+          expect(cursorRes.nextBatch!.length, 101);
           expect(() => GetMoreOptions(batchSize: 0), throwsMongoDartError);
         });
       });
@@ -271,7 +271,7 @@ void main() async {
           var ret = await command.execute();
           expect(ret[keyOk], 1.0);
           expect(ret[keyLogLevel], 0);
-          if (!db.masterConnection.serverCapabilities.isShardedCluster) {
+          if (!db!.masterConnection!.serverCapabilities.isShardedCluster) {
             expect(ret[keyFeatureCompatibilityVersion], isMap);
           }
         });
@@ -336,7 +336,7 @@ void main() async {
           var ret = await command.executeDocument();
           expect(ret, isNotNull);
           expect(ret.host, isNotEmpty);
-          expect(ret.localTime.isAfter(DateTime(2020)), isTrue);
+          expect(ret.localTime!.isAfter(DateTime(2020)), isTrue);
           expect(ret.version, isNotNull);
         });
 
@@ -359,9 +359,9 @@ void main() async {
   });
 
   tearDownAll(() async {
-    await db.open();
+    await db!.open();
     await Future.forEach(usedCollectionNames,
-        (String collectionName) => db.collection(collectionName).drop());
-    await db.close();
+        (String collectionName) => db!.collection(collectionName).drop());
+    await db!.close();
   });
 }

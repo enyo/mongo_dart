@@ -27,7 +27,7 @@ class UpdateStatement {
 
   /// The query that matches documents to update.
   /// Use the same query selectors as used in the find() method.
-  Map<String, Object> q;
+  Map<String, Object>? q;
 
   /// The modifications to apply.
   ///
@@ -38,17 +38,17 @@ class UpdateStatement {
   ///   * `$addFields` and its alias `$set`
   ///   * `$project` and its alias `$unset`
   ///   * `$replaceRoot` and its alias `$replaceWith`.
-  Object u;
+  Object? u;
 
   /// If true, perform an insert if no documents match the query.
   /// If both upsert and multi are true and no documents match the query,
   /// the update operation inserts only a single document.
-  bool upsert = false;
+  bool? upsert = false;
 
   /// If true, updates all documents that meet the query criteria.
   /// If false, limit the update to one document that meet the query criteria.
   /// Defaults to false.
-  bool multi = false;
+  bool? multi = false;
 
   /// Specifies the collation to use for the operation.
   ///
@@ -69,7 +69,7 @@ class UpdateStatement {
   /// for the sort.
   ///
   /// New in version 3.4.
-  CollationOptions collation;
+  CollationOptions? collation;
 
   /// An array of filter documents that determine which array elements to
   /// modify for an update operation on an array field.
@@ -120,7 +120,7 @@ class UpdateStatement {
   ///
   /// New in version 3.6.
   ///
-  List arrayFilters;
+  List? arrayFilters;
 
   /// A document or string that specifies the index to use to support the
   /// query predicate.
@@ -135,16 +135,16 @@ class UpdateStatement {
   /// We define two fields, if set, one exclude the other.
   ///
   /// New in 4.4
-  String hint;
-  Map<String, Object> hintDocument;
+  String? hint;
+  Map<String, Object>? hintDocument;
 
-  Map<String, Object> toMap() {
-    return <String, Object>{
+  Map<String, Object?> toMap() {
+    return <String, Object?>{
       keyQ: q,
       keyU: u,
-      if (upsert) keyUpsert: upsert,
-      if (multi) keyMulti: multi,
-      if (collation != null) keyCollation: collation.options,
+      if (upsert!) keyUpsert: upsert,
+      if (multi!) keyMulti: multi,
+      if (collation != null) keyCollation: collation!.options,
       if (arrayFilters != null) keyArrayFilters: arrayFilters,
       if (hint != null)
         keyHint: hint

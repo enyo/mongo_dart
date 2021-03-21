@@ -5,20 +5,20 @@ typedef MonadicBlock = void Function(Map<String, dynamic> value);
 class Cursor {
   final _log = Logger('Cursor');
   State state = State.INIT;
-  int cursorId = 0;
-  Db db;
-  Queue<Map<String, dynamic>> items;
-  DbCollection collection;
-  Map<String, dynamic> selector;
-  Map<String, dynamic> fields;
+  int? cursorId = 0;
+  Db? db;
+  late Queue<Map<String, dynamic>?> items;
+  DbCollection? collection;
+  Map<String, dynamic>? selector;
+  Map<String, dynamic>? fields;
   int skip = 0;
   int limit = 0;
   int _returnedCount = 0;
-  Map<String, dynamic> sort;
-  Map<String, dynamic> hint;
-  MonadicBlock eachCallback;
+  Map<String, dynamic>? sort;
+  Map<String, dynamic>? hint;
+  MonadicBlock? eachCallback;
   var eachComplete;
-  bool explain;
+  bool? explain;
   int flags = 0;
 
   /// Tailable means cursor is not closed when the last data is retrieved
@@ -90,14 +90,14 @@ class Cursor {
 
   MongoQueryMessage generateQueryMessage() {
     return MongoQueryMessage(
-        collection.fullName(), flags, skip, limit, selector, fields);
+        collection!.fullName(), flags, skip, limit, selector!, fields);
   }
 
   MongoGetMoreMessage generateGetMoreMessage() {
-    return MongoGetMoreMessage(collection.fullName(), cursorId);
+    return MongoGetMoreMessage(collection!.fullName(), cursorId);
   }
 
-  Map<String, dynamic> _getNextItem() {
+  Map<String, dynamic>? _getNextItem() {
     _returnedCount++;
     return items.removeFirst();
   }
@@ -110,7 +110,7 @@ class Cursor {
   Future<Map<String, dynamic>> nextObject() {
     if (state == State.INIT) {
       var qm = generateQueryMessage();
-      return db.queryMessage(qm).then((replyMessage) {
+      return db!.queryMessage(qm).then((replyMessage) {
         state = State.OPEN;
         getCursorData(replyMessage);
         if (items.isNotEmpty) {
@@ -120,12 +120,12 @@ class Cursor {
         }
       });
     } else if (state == State.OPEN && limit > 0 && _returnedCount == limit) {
-      return close();
+      return close() as Future<Map<String, dynamic>>;
     } else if (state == State.OPEN && items.isNotEmpty) {
       return Future.value(_getNextItem());
-    } else if (state == State.OPEN && cursorId > 0) {
+    } else if (state == State.OPEN && cursorId! > 0) {
       var qm = generateGetMoreMessage();
-      return db.queryMessage(qm).then((replyMessage) {
+      return db!.queryMessage(qm).then((replyMessage) {
         state = State.OPEN;
         getCursorData(replyMessage);
         var isDead = (replyMessage.responseFlags ==
@@ -157,7 +157,7 @@ class Cursor {
     if (cursorId != 0) {
       var msg = MongoKillCursorsMessage(cursorId);
       cursorId = 0;
-      db.executeMessage(msg, WriteConcern.UNACKNOWLEDGED);
+      db!.executeMessage(msg, WriteConcern.UNACKNOWLEDGED);
     }
     return Future.value(null);
   }
@@ -178,7 +178,7 @@ class Cursor {
 }
 
 class CommandCursor extends Cursor {
-  CommandCursor(Db db, DbCollection collection, selectorBuilderOrMap)
+  CommandCursor(Db db, DbCollection? collection, selectorBuilderOrMap)
       : super(db, collection, selectorBuilderOrMap);
   bool firstBatch = true;
   @override
@@ -190,9 +190,9 @@ class CommandCursor extends Cursor {
   void getCursorData(MongoReplyMessage replyMessage) {
     if (firstBatch) {
       firstBatch = false;
-      var cursorMap = replyMessage.documents.first['cursor'];
+      var cursorMap = replyMessage.documents.first!['cursor'];
       if (cursorMap != null) {
-        cursorId = cursorMap['id'] as int;
+        cursorId = cursorMap['id'] as int?;
         final firstBatch = cursorMap['firstBatch'] as List;
         items.addAll(List.from(firstBatch));
       }
@@ -218,7 +218,7 @@ class AggregateCursor extends CommandCursor {
         0,
         -1,
         {
-          'aggregate': collection.collectionName,
+          'aggregate': collection!.collectionName,
           'pipeline': pipeline,
           'cursor': cursorOptions,
           'allowDiskUse': allowDiskUse
@@ -253,7 +253,7 @@ class ListIndexesCursor extends CommandCursor {
         MongoQueryMessage.OPTS_NO_CURSOR_TIMEOUT,
         0,
         -1,
-        {'listIndexes': collection.collectionName},
+        {'listIndexes': collection!.collectionName},
         null);
   }
 }

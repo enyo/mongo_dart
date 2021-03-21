@@ -25,8 +25,8 @@ Future<List<String>> decodeDnsSeedlist(Uri dnsSeedlistUri) async {
     throw MongoDartError('DNS data is not correct (missing TXT detail)');
   }
   var additionalParms = records.first.data.replaceAll('"', '');
-  records = await DnsUtils.lookupRecord(
-      '_mongodb._tcp.${dnsSeedlistUri.host}', RRecordType.SRV);
+  records = await (DnsUtils.lookupRecord(
+      '_mongodb._tcp.${dnsSeedlistUri.host}', RRecordType.SRV) as FutureOr<List<RRecord>>);
   if (records == null) {
     throw MongoDartError('Impossible to contact the DNS server');
   }

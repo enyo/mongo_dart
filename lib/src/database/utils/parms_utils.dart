@@ -9,7 +9,7 @@ Map<String, dynamic> extractfilterMap(filter) {
   if (filter is SelectorBuilder) {
     return <String, dynamic>{...?filter.map[key$Query]};
   } else if (filter is Map) {
-    return <String, dynamic>{...filter};
+    return <String, dynamic>{...filter as Map<String, dynamic>};
   }
   throw MongoDartError(
       'Filter can only be a Map or a SelectorBuilder instance');

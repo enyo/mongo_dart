@@ -16,28 +16,28 @@ import 'package:mongo_dart/src/database/utils/mongo_db_namespace.dart';
 /// only the getMore commands run when a queried shard or shards are
 /// unavailable include the partialResultsReturned flag in the output.
 class CursorResult {
-  int id;
-  MongoDBNamespace ns;
+  int? id;
+  MongoDBNamespace? ns;
 
   /// alternative container for documents:
   /// * firstBatch in response to a find/aggreagate operation
   /// * nextBatch in response to a getMore command
-  List<Map<String, Object>> firstBatch, nextBatch;
-  bool partialResultsReturned;
+  List<Map<String, Object>>? firstBatch, nextBatch;
+  bool? partialResultsReturned;
 
-  CursorResult(Map<String, Object> document) {
+  CursorResult(Map<String, Object>? document) {
     _extract(document);
   }
 
-  void _extract(Map<String, Object> document) {
+  void _extract(Map<String, Object>? document) {
     document ??= <String, Object>{};
-    id = document[keyId];
+    id = document[keyId] as int?;
     // on errors "ns is not returned"
     if (document.containsKey(keyNs)) {
-      ns = MongoDBNamespace.fromString(document[keyNs]);
+      ns = MongoDBNamespace.fromString(document[keyNs] as String?);
     }
-    firstBatch = [...(document[keyFirstBatch] as List ?? [])];
-    nextBatch = [...(document[keyNextBatch] as List ?? [])];
-    partialResultsReturned = document[keyPartialResultsReturned];
+    firstBatch = [...((document[keyFirstBatch] as List?) as Iterable<Map<String, Object>>? ?? [])];
+    nextBatch = [...((document[keyNextBatch] as List?) as Iterable<Map<String, Object>>? ?? [])];
+    partialResultsReturned = document[keyPartialResultsReturned] as bool?;
   }
 }

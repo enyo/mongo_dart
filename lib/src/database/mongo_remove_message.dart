@@ -1,9 +1,9 @@
 part of mongo_dart;
 
 class MongoRemoveMessage extends MongoMessage {
-  BsonCString _collectionFullName;
+  late BsonCString _collectionFullName;
   int flags;
-  BsonMap _selector;
+  late BsonMap _selector;
 
   MongoRemoveMessage(String collectionFullName,
       [Map<String, dynamic> selector = const {}, this.flags = 0]) {

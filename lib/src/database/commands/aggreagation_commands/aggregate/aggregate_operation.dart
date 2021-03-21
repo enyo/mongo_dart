@@ -12,17 +12,17 @@ import 'aggregate_result.dart';
 /// collection, the db parameter must be passed instead.
 class AggregateOperation extends CommandOperation {
   AggregateOperation(Object pipeline,
-      {DbCollection collection,
-      Db db,
+      {DbCollection? collection,
+      Db? db,
       this.explain,
       this.cursor,
       this.hint,
       this.hintDocument,
-      AggregateOptions aggregateOptions,
-      Map<String, Object> rawOptions})
+      AggregateOptions? aggregateOptions,
+      Map<String, Object?>? rawOptions})
       : super(
             collection?.db ?? db,
-            <String, Object>{
+            <String, Object?>{
               ...?aggregateOptions?.getOptions(collection?.db ?? db),
               ...?rawOptions
             },
@@ -43,12 +43,12 @@ class AggregateOperation extends CommandOperation {
 
   /// An array of aggregation pipeline stages that process and transform
   /// the document stream as part of the aggregation pipeline.
-  List<Map<String, Object>> pipeline;
+  List<Map<String, Object?>>? pipeline;
 
   /// Specifies to return the information on the processing of the pipeline.
   ///
   /// **Not available in multi-document transactions.**
-  bool explain;
+  bool? explain;
 
   /// Specify a document that contains options that control the creation of
   /// the cursor object.
@@ -60,7 +60,7 @@ class AggregateOperation extends CommandOperation {
   /// To indicate a cursor with the default batch size, specify `cursor: {}`.
   /// To indicate a cursor with a non-default batch size, use
   /// `cursor: { batchSize: <num> }`.
-  Map<String, Object> cursor;
+  Map<String, Object>? cursor;
 
   /// Optional. Index specification. Specify either the index name
   /// as a string (hint field) or the index key pattern (hintDocument field).
@@ -70,20 +70,20 @@ class AggregateOperation extends CommandOperation {
   /// hint is required if the command includes the min and/or max fields;
   /// hint is not required with min and/or max if the filter is an
   /// equality condition on the _id field { _id: <value> }.
-  String hint;
-  Map<String, Object> hintDocument;
+  String? hint;
+  Map<String, Object>? hintDocument;
 
   @override
-  Map<String, Object> $buildCommand() {
+  Map<String, Object?> $buildCommand() {
     // on null collections (only aggregate) the query is performed
     // on the admin database
     if (collection == null) {
-      options[keyDbName] = 'admin';
+      options![keyDbName] = 'admin';
     }
-    return <String, Object>{
+    return <String, Object?>{
       keyAggregate: collection?.collectionName ?? 1,
       keyPipeline: pipeline,
-      if (explain) keyExplain: explain,
+      if (explain!) keyExplain: explain,
       keyCursor: cursor,
       if (hint != null)
         keyHint: hint

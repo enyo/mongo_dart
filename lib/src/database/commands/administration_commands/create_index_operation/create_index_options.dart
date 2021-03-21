@@ -17,18 +17,18 @@ import 'package:mongo_dart/src/database/utils/map_keys.dart';
 /// @param {ClientSession} [options.session] optional session to use for this operation
 class CreateIndexOptions {
   DbCollection collection;
-  WriteConcern writeConcern;
-  bool uniqueIndex = false;
-  bool sparseIndex = false;
-  bool background = false;
-  bool dropDuplicatedEntries = false;
-  double geoLowerBound;
-  double geoHighBound;
-  double formatVersion;
-  int expireAfterSeconds;
-  String indexName;
-  Map partialFilterExpression;
-  Map collation;
+  WriteConcern? writeConcern;
+  bool? uniqueIndex = false;
+  bool? sparseIndex = false;
+  bool? background = false;
+  bool? dropDuplicatedEntries = false;
+  double? geoLowerBound;
+  double? geoHighBound;
+  double? formatVersion;
+  int? expireAfterSeconds;
+  String? indexName;
+  Map? partialFilterExpression;
+  Map? collation;
 
   // Todo
   //ClientSession session;
@@ -48,10 +48,10 @@ class CreateIndexOptions {
     /* this.session*/
   });
 
-  Map<String, Object> get options => <String, Object>{
+  Map<String, Object?> get options => <String, Object?>{
         if (writeConcern != null)
           keyWriteConcern:
-              writeConcern.asMap(collection.db.masterConnection.serverStatus),
+              writeConcern!.asMap(collection.db.masterConnection!.serverStatus),
         keyUniqueIndex: uniqueIndex,
         keySparseIndex: sparseIndex,
         keyBackground: background,

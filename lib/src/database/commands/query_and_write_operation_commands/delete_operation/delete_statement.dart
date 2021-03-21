@@ -24,7 +24,7 @@ class DeleteStatement {
   /// **NOTE**
   ///
   /// At present (4.4) only 0 and 1 can be specified.
-  int limit = 1;
+  int? limit = 1;
 
   /// Specifies the collation to use for the operation.
   ///
@@ -45,7 +45,7 @@ class DeleteStatement {
   /// for the sort.
   ///
   /// New in version 3.4.
-  CollationOptions collation;
+  CollationOptions? collation;
 
   /// A document or string that specifies the index to use to support the
   /// query predicate.
@@ -60,14 +60,14 @@ class DeleteStatement {
   /// We define two fields, if set, one exclude the other.
   ///
   /// New in 4.4
-  String hint;
-  Map<String, Object> hintDocument;
+  String? hint;
+  Map<String, Object>? hintDocument;
 
-  Map<String, Object> toMap() {
-    return <String, Object>{
+  Map<String, Object?> toMap() {
+    return <String, Object?>{
       keyQ: filter,
       keyLimit: limit,
-      if (collation != null) keyCollation: collation.options,
+      if (collation != null) keyCollation: collation!.options,
       if (hint != null)
         keyHint: hint
       else if (hintDocument != null)

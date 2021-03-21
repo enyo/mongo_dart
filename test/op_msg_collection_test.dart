@@ -15,7 +15,7 @@ const DefaultUri = 'mongodb://$dbAddress:27017/$dbName';
 
 final Matcher throwsMongoDartError = throwsA(TypeMatcher<MongoDartError>());
 
-Db db;
+Db? db;
 Uuid uuid = Uuid();
 List<String> usedCollectionNames = [];
 
@@ -28,7 +28,7 @@ String getRandomCollectionName() {
 void main() async {
   Future initializeDatabase() async {
     db = Db(DefaultUri);
-    await db.open();
+    await db!.open();
   }
 
   Future insertManyDocuments(
@@ -42,15 +42,15 @@ void main() async {
   }
 
   Future cleanupDatabase() async {
-    await db.close();
+    await db!.close();
   }
 
   group('Collections', () {
     var cannotRunTests = false;
     setUp(() async {
       await initializeDatabase();
-      if (db.masterConnection == null ||
-          !db.masterConnection.serverCapabilities.supportsOpMsg) {
+      if (db!.masterConnection == null ||
+          !db!.masterConnection!.serverCapabilities.supportsOpMsg) {
         cannotRunTests = true;
       }
     });
@@ -63,7 +63,7 @@ void main() async {
       var collectionName = getRandomCollectionName();
       var resultMap = await CreateCommand(db, collectionName).execute();
       expect(resultMap[keyOk], 1.0);
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
 
       await insertManyDocuments(collection, 10000);
       var result = await collection.modernFind().toList();
@@ -77,7 +77,7 @@ void main() async {
                   CreateOptions(capped: true, size: 5242880, max: 5000))
           .execute();
       expect(resultMap[keyOk], 1.0);
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
 
       await insertManyDocuments(collection, 10000);
       var result = await collection.modernFind().toList();
@@ -111,7 +111,7 @@ void main() async {
             }
           })).execute();
       expect(resultMap[keyOk], 1.0);
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
 
       var writeResult = await collection.insertOne(
           {'name': 'Anand', 'phone': '451 3874643', 'status': 'Incomplete'},
@@ -124,14 +124,14 @@ void main() async {
       expect(writeResult.isSuccess, isFalse);
       expect(writeResult.operationSucceeded, isTrue);
       expect(writeResult.hasWriteErrors, isTrue);
-      expect(writeResult.writeError.code, 121);
+      expect(writeResult.writeError!.code, 121);
     }, skip: cannotRunTests);
 
     test('Simple create collection with no collation', () async {
       var collectionName = getRandomCollectionName();
       var resultMap = await CreateCommand(db, collectionName).execute();
       expect(resultMap[keyOk], 1.0);
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
 
       await collection.insertOne({'_id': 1, 'category': 'café'});
       await collection.insertOne({'_id': 2, 'category': 'cafe'});
@@ -154,7 +154,7 @@ void main() async {
               createOptions: CreateOptions(collation: CollationOptions('fr')))
           .execute();
       expect(resultMap[keyOk], 1.0);
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
 
       await collection.insertOne({'_id': 1, 'category': 'café'});
       await collection.insertOne({'_id': 2, 'category': 'cafe'});
@@ -187,8 +187,8 @@ void main() async {
     var cannotRunTests = false;
     setUp(() async {
       await initializeDatabase();
-      if (db.masterConnection == null ||
-          !db.masterConnection.serverCapabilities.supportsOpMsg) {
+      if (db!.masterConnection == null ||
+          !db!.masterConnection!.serverCapabilities.supportsOpMsg) {
         cannotRunTests = true;
       }
     });
@@ -211,8 +211,8 @@ void main() async {
           ])).execute();
       expect(resultMap[keyOk], 1.0);
 
-      var collection = db.collection(collectionName);
-      var view = db.collection(viewName);
+      var collection = db!.collection(collectionName);
+      var view = db!.collection(viewName);
       await collection.insertOne({
         '_id': 1,
         'empNumber': 'abc123',
@@ -254,8 +254,8 @@ void main() async {
           ])).execute();
       expect(resultMap[keyOk], 1.0);
 
-      var collection = db.collection(collectionName);
-      var view = db.collection(viewName);
+      var collection = db!.collection(collectionName);
+      var view = db!.collection(viewName);
       await collection.insertOne({
         '_id': 1,
         'empNumber': 'abc123',
@@ -295,8 +295,8 @@ void main() async {
           ])).execute();
       expect(resultMap[keyOk], 1.0);
 
-      var collection = db.collection(collectionName);
-      var view = db.collection(viewName);
+      var collection = db!.collection(collectionName);
+      var view = db!.collection(viewName);
       await collection.insertOne({
         '_id': 1,
         'empNumber': 'abc123',
@@ -328,8 +328,8 @@ void main() async {
     test('Create a view from multiple collections', () async {
       var collection1Name = 'orders.a';
       var collection2Name = 'inventory.a';
-      var collection1 = db.collection(collection1Name);
-      var collection2 = db.collection(collection2Name);
+      var collection1 = db!.collection(collection1Name);
+      var collection2 = db!.collection(collection2Name);
 
       await collection1.insertOne({
         '_id': 1,
@@ -390,7 +390,7 @@ void main() async {
           ])).execute();
       expect(resultMap[keyOk], 1.0);
 
-      var view = db.collection(viewName);
+      var view = db!.collection(viewName);
 
       var result = await view.modernFind().toList();
 
@@ -410,8 +410,8 @@ void main() async {
     test('Aggregation pipeline on a view from multiple collections', () async {
       var collection1Name = 'orders';
       var collection2Name = 'inventory';
-      var collection1 = db.collection(collection1Name);
-      var collection2 = db.collection(collection2Name);
+      var collection1 = db!.collection(collection1Name);
+      var collection2 = db!.collection(collection2Name);
 
       await collection1.insertOne({
         '_id': 1,
@@ -478,7 +478,7 @@ void main() async {
           ])).execute();
       expect(resultMap[keyOk], 1.0);
 
-      var view = db.collection(viewName);
+      var view = db!.collection(viewName);
 
       var result = await view.modernAggregate([
         {r'$sortByCount': r'$item'}
@@ -496,7 +496,7 @@ void main() async {
       var collectionName = 'places';
       usedCollectionNames.add(collectionName);
 
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
 
       await collection.insertOne({'_id': 2, 'category': 'café'});
       await collection.insertOne({'_id': 3, 'category': 'cafe'});
@@ -522,7 +522,7 @@ void main() async {
       ).execute();
       expect(resultMap[keyOk], 1.0);
 
-      var view = db.collection(viewName);
+      var view = db!.collection(viewName);
 
       var result = await view
           .modernFind(
@@ -537,7 +537,7 @@ void main() async {
       var collectionName = 'places2';
       usedCollectionNames.add(collectionName);
 
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
 
       await collection.insertOne({'_id': 2, 'category': 'café'});
       await collection.insertOne({'_id': 3, 'category': 'cafe'});
@@ -564,7 +564,7 @@ void main() async {
           }).execute();
       expect(resultMap[keyOk], 1.0);
 
-      var view = db.collection(viewName);
+      var view = db!.collection(viewName);
 
       var countRet = await view.count({'category': 'cafe'});
       expect(countRet, 3);
@@ -574,7 +574,7 @@ void main() async {
       var collectionName = 'places3';
       usedCollectionNames.add(collectionName);
 
-      var collection = db.collection(collectionName);
+      var collection = db!.collection(collectionName);
 
       await collection.insertOne({'_id': 2, 'category': 'café'});
       await collection.insertOne({'_id': 3, 'category': 'cafe'});
@@ -600,7 +600,7 @@ void main() async {
       ).execute();
       expect(resultMap[keyOk], 1.0);
 
-      var view = db.collection(viewName);
+      var view = db!.collection(viewName);
 
       try {
         await view
@@ -619,9 +619,9 @@ void main() async {
   });
 
   tearDownAll(() async {
-    await db.open();
+    await db!.open();
     await Future.forEach(usedCollectionNames,
-        (String collectionName) => db.collection(collectionName).drop());
-    await db.close();
+        (String collectionName) => db!.collection(collectionName).drop());
+    await db!.close();
   });
 }

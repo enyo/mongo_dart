@@ -8,10 +8,10 @@ import 'delete_options.dart';
 
 class DeleteOperation extends CommandOperation {
   DeleteOperation(DbCollection collection, this.deleteRequests,
-      {DeleteOptions deleteOptions, Map<String, Object> rawOptions})
+      {DeleteOptions? deleteOptions, Map<String, Object?>? rawOptions})
       : super(
             collection.db,
-            <String, Object>{
+            <String, Object?>{
               ...?deleteOptions?.getOptions(collection.db),
               ...?rawOptions
             },
@@ -24,8 +24,8 @@ class DeleteOperation extends CommandOperation {
   List<DeleteStatement> deleteRequests;
 
   @override
-  Map<String, Object> $buildCommand() => <String, Object>{
-        keyDelete: collection.collectionName,
+  Map<String, Object?> $buildCommand() => <String, Object?>{
+        keyDelete: collection!.collectionName,
         keyDeletes: [for (var request in deleteRequests) request.toMap()]
       };
 }

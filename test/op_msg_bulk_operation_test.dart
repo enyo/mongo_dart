@@ -18,7 +18,7 @@ const DefaultUri = 'mongodb://$dbAddress:27017/$dbName';
 
 final Matcher throwsMongoDartError = throwsA(TypeMatcher<MongoDartError>());
 
-Db db;
+Db? db;
 Uuid uuid = Uuid();
 List<String> usedCollectionNames = [];
 
@@ -31,11 +31,11 @@ String getRandomCollectionName() {
 void main() async {
   Future initializeDatabase() async {
     db = Db(DefaultUri);
-    await db.open();
+    await db!.open();
   }
 
   Future cleanupDatabase() async {
-    await db.close();
+    await db!.close();
   }
 
   group('Bulk Operations', () {
@@ -48,8 +48,8 @@ void main() async {
 
     setUp(() async {
       await initializeDatabase();
-      if (db.masterConnection == null ||
-          !db.masterConnection.serverCapabilities.supportsOpMsg) {
+      if (db!.masterConnection == null ||
+          !db!.masterConnection!.serverCapabilities.supportsOpMsg) {
         cannotRunTests = true;
       }
       var serverFcv = db?.masterConnection?.serverCapabilities?.fcv ?? '0.0';
@@ -77,7 +77,7 @@ void main() async {
         MongoModernMessage.maxWriteBatchSize = 5;
         var originMap = {0: 0, 3: 1, 7: 2, 12: 3};
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
         var bulk = OrderedBulk(collection);
         var ret = bulk.splitInputOrigins(originMap, 22);
         MongoModernMessage.maxWriteBatchSize = saveMaxDocs;
@@ -101,7 +101,7 @@ void main() async {
         MongoModernMessage.maxWriteBatchSize = 5;
         var originMap = {0: 0, 4: 1, 5: 2, 9: 3, 10: 4};
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
         var bulk = OrderedBulk(collection);
         var ret = bulk.splitInputOrigins(originMap, 22);
         MongoModernMessage.maxWriteBatchSize = saveMaxDocs;
@@ -124,7 +124,7 @@ void main() async {
     group('Bulk insert', () {
       test('Ordered Bulk', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var bulk = OrderedBulk(collection);
         bulk.insertOne({'_id': 2, 'name': 'Stephen', 'age': 54});
@@ -135,7 +135,7 @@ void main() async {
         ]);
         bulk.insertOne({'_id': 5, 'name': 'Mandy', 'age': 21});
 
-        var ret = await bulk.executeDocument();
+        var ret = await (bulk.executeDocument() as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.operationSucceeded, isTrue);
@@ -155,7 +155,7 @@ void main() async {
 
       test('Ordered Bulk - extra limit', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var bulk = OrderedBulk(collection);
 
@@ -168,7 +168,7 @@ void main() async {
 
         bulk.insertOne({'_id': 5, 'name': 'Mandy', 'age': 21});
 
-        var ret = await bulk.executeDocument();
+        var ret = await (bulk.executeDocument() as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.isSuccess, isFalse);
@@ -193,7 +193,7 @@ void main() async {
 
       test('Unordered Bulk', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var bulk = UnorderedBulk(collection);
 
@@ -209,7 +209,7 @@ void main() async {
         ]);
         bulk.insertOne({'_id': 5, 'name': 'Mandy', 'age': 21});
 
-        var ret = await bulk.executeDocument();
+        var ret = await (bulk.executeDocument() as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.operationSucceeded, isTrue);
@@ -231,7 +231,7 @@ void main() async {
       }, skip: cannotRunTests);
       test('Unordered Bulk - extra limit', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var bulk = UnorderedBulk(collection);
 
@@ -243,7 +243,7 @@ void main() async {
         bulk.insertMany(docs);
         bulk.insertOne({'_id': 5, 'name': 'Mandy', 'age': 21});
 
-        var ret = await bulk.executeDocument();
+        var ret = await (bulk.executeDocument() as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.operationSucceeded, isTrue);
@@ -268,7 +268,7 @@ void main() async {
     group('Bulk delete', () {
       test('Unordered Bulk', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var retOrders = await insertOrders(collection);
         expect(retOrders.ok, 1.0);
@@ -280,7 +280,7 @@ void main() async {
         bulk.deleteOne(DeleteOneStatement(
             {'cust_num': 99999, 'item': 'abc123', 'status': 'A'}));
 
-        var ret = await bulk.executeDocument();
+        var ret = await (bulk.executeDocument() as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.operationSucceeded, isTrue);
@@ -299,13 +299,13 @@ void main() async {
       }, skip: cannotRunTests);
       test('Unordered Bulk - collection helper', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var retOrders = await insertOrders(collection);
         expect(retOrders.ok, 1.0);
         expect(retOrders.isSuccess, isTrue);
 
-        var ret = await collection.bulkWrite([
+        var ret = await (collection.bulkWrite([
           {
             bulkDeleteMany: {
               bulkFilter: {'status': 'D'},
@@ -316,7 +316,7 @@ void main() async {
               'filter': {'cust_num': 99999, 'item': 'abc123', 'status': 'A'}
             }
           }
-        ], ordered: false);
+        ], ordered: false) as FutureOr<BulkWriteResult>);
 
         /* var bulk = UnorderedBulk(collection, writeConcern: WriteConcern(w: 1));
         bulk.deleteMany(DeleteManyStatement({'status': 'D'}));
@@ -343,7 +343,7 @@ void main() async {
       }, skip: cannotRunTests);
       test('Ordered Bulk', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var retOrders = await insertOrders(collection);
         expect(retOrders.ok, 1.0);
@@ -355,7 +355,7 @@ void main() async {
         bulk.deleteOne(DeleteOneStatement(
             {'cust_num': 99999, 'item': 'abc123', 'status': 'A'}));
 
-        var ret = await bulk.executeDocument();
+        var ret = await (bulk.executeDocument() as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.operationSucceeded, isTrue);
@@ -377,7 +377,7 @@ void main() async {
     group('Bulk update', () {
       test('Unordered Bulk', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var retOrders = await insertOrders(collection);
         expect(retOrders.ok, 1.0);
@@ -401,7 +401,7 @@ void main() async {
           'item': 'tst24',
           'status': 'Replaced'
         }, upsert: true));
-        var ret = await bulk.executeDocument();
+        var ret = await (bulk.executeDocument() as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.operationSucceeded, isTrue);
@@ -420,7 +420,7 @@ void main() async {
       }, skip: cannotRunTests);
       test('Ordered Bulk', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var retOrders = await insertOrders(collection);
         expect(retOrders.ok, 1.0);
@@ -443,7 +443,7 @@ void main() async {
           'item': 'tst24',
           'status': 'Replaced'
         }, upsert: true));
-        var ret = await bulk.executeDocument();
+        var ret = await (bulk.executeDocument() as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.operationSucceeded, isTrue);
@@ -462,13 +462,13 @@ void main() async {
       }, skip: cannotRunTests);
       test('Ordered Bulk - collection helper', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var retOrders = await insertOrders(collection);
         expect(retOrders.ok, 1.0);
         expect(retOrders.isSuccess, isTrue);
 
-        var ret = await collection.bulkWrite([
+        var ret = await (collection.bulkWrite([
           {
             bulkUpdateMany: {
               bulkFilter: {'status': 'D'},
@@ -496,7 +496,7 @@ void main() async {
               bulkUpsert: true
             }
           }
-        ], ordered: true);
+        ], ordered: true) as FutureOr<BulkWriteResult>);
 
         /* var bulk = OrderedBulk(collection, writeConcern: WriteConcern(w: 1));
         bulk.updateMany(UpdateManyStatement(
@@ -537,7 +537,7 @@ void main() async {
     group('Mixed functions', () {
       test('Ordered Bulk - Insert and delete one', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var bulk = OrderedBulk(collection);
         bulk.insertOne({'_id': 2, 'name': 'Stephen', 'age': 54});
@@ -550,7 +550,7 @@ void main() async {
         bulk.deleteOne(DeleteOneStatement({'_id': 4}));
         bulk.insertOne({'_id': 5, 'name': 'Mandy', 'age': 21});
 
-        var ret = await bulk.executeDocument();
+        var ret = await (bulk.executeDocument() as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.operationSucceeded, isTrue);
@@ -577,9 +577,9 @@ void main() async {
           'Ordered Bulk - Insert, delete one and delete many '
           'with collection helper', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
-        var ret = await collection.bulkWrite([
+        var ret = await (collection.bulkWrite([
           {
             bulkInsertOne: {
               bulkDocument: {'_id': 2, 'name': 'Stephen', 'age': 54}
@@ -611,7 +611,7 @@ void main() async {
               bulkDocument: {'_id': 5, 'name': 'Mandy', 'age': 21}
             }
           }
-        ]);
+        ]) as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.operationSucceeded, isTrue);
@@ -636,7 +636,7 @@ void main() async {
 
       test('Ordered Bulk - Insert, delete one and delete many', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var bulk = OrderedBulk(collection);
         bulk.insertOne({'_id': 2, 'name': 'Stephen', 'age': 54});
@@ -651,7 +651,7 @@ void main() async {
         }));
         bulk.insertOne({'_id': 5, 'name': 'Mandy', 'age': 21});
 
-        var ret = await bulk.executeDocument();
+        var ret = await (bulk.executeDocument() as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.operationSucceeded, isTrue);
@@ -675,7 +675,7 @@ void main() async {
       }, skip: cannotRunTests);
       test('Ordered Bulk - "One" method types', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany([
           {'_id': 1, 'char': 'Brisbane', 'class': 'monk', 'lvl': 4},
@@ -683,7 +683,7 @@ void main() async {
           {'_id': 3, 'char': 'Meldane', 'class': 'ranger', 'lvl': 3}
         ]);
 
-        var ret = await collection.bulkWrite([
+        var ret = await (collection.bulkWrite([
           {
             'insertOne': {
               'document': {
@@ -723,7 +723,7 @@ void main() async {
               'replacement': {'char': 'Tanys', 'class': 'oracle', 'lvl': 4}
             }
           }
-        ]);
+        ]) as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.operationSucceeded, isTrue);
@@ -737,8 +737,8 @@ void main() async {
         expect(ret.nMatched, 2);
         expect(ret.nRemoved, 1);
         expect(ret.ids, isNotNull);
-        expect(ret.ids.length, 2);
-        expect(ret.ids[0], 4);
+        expect(ret.ids!.length, 2);
+        expect(ret.ids![0], 4);
         expect(ret.upserted, isEmpty);
 
         var findResult = await collection.find().toList();
@@ -749,7 +749,7 @@ void main() async {
       }, skip: cannotRunTests);
       test('Ordered Bulk - "One" method types - with error', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany([
           {'_id': 1, 'char': 'Brisbane', 'class': 'monk', 'lvl': 4},
@@ -757,7 +757,7 @@ void main() async {
           {'_id': 5, 'char': 'Meldane', 'class': 'ranger', 'lvl': 3}
         ]);
 
-        var ret = await collection.bulkWrite([
+        var ret = await (collection.bulkWrite([
           {
             'insertOne': {
               'document': {
@@ -797,7 +797,7 @@ void main() async {
               'replacement': {'char': 'Tanys', 'class': 'oracle', 'lvl': 4}
             }
           }
-        ]);
+        ]) as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.operationSucceeded, isTrue);
@@ -812,8 +812,8 @@ void main() async {
         expect(ret.nMatched, 0);
         expect(ret.nRemoved, 0);
         expect(ret.ids, isNotNull);
-        expect(ret.ids.length, 1);
-        expect(ret.ids.first, 4);
+        expect(ret.ids!.length, 1);
+        expect(ret.ids!.first, 4);
         expect(ret.upserted, isEmpty);
         expect(ret.writeErrors.first.index, 1);
         expect(ret.writeErrors.first.operationInputIndex, 1);
@@ -827,9 +827,9 @@ void main() async {
 
       test('Ordered Bulk - "All" method types', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
-        var ret = await collection.bulkWrite([
+        var ret = await (collection.bulkWrite([
           {
             bulkInsertMany: {
               bulkDocuments: [
@@ -878,7 +878,7 @@ void main() async {
               'replacement': {'char': 'Tanys', 'class': 'oracle', 'lvl': 4}
             }
           }
-        ]);
+        ]) as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.operationSucceeded, isTrue);
@@ -893,8 +893,8 @@ void main() async {
         expect(ret.nMatched, 2);
         expect(ret.nRemoved, 1);
         expect(ret.ids, isNotNull);
-        expect(ret.ids.length, 5);
-        expect(ret.ids.first, 1);
+        expect(ret.ids!.length, 5);
+        expect(ret.ids!.first, 1);
         expect(ret.upserted, isEmpty);
 
         var findResult = await collection.find().toList();
@@ -906,7 +906,7 @@ void main() async {
 
       test('Ordered Bulk - "All" method types fromMap', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var bulk = OrderedBulk(collection);
 
@@ -934,7 +934,7 @@ void main() async {
           'replacement': {'char': 'Tanys', 'class': 'oracle', 'lvl': 4}
         });
 
-        var ret = await bulk.executeDocument();
+        var ret = await (bulk.executeDocument() as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.operationSucceeded, isTrue);
@@ -949,8 +949,8 @@ void main() async {
         expect(ret.nMatched, 2);
         expect(ret.nRemoved, 1);
         expect(ret.ids, isNotNull);
-        expect(ret.ids.length, 5);
-        expect(ret.ids.first, 1);
+        expect(ret.ids!.length, 5);
+        expect(ret.ids!.first, 1);
         expect(ret.upserted, isEmpty);
 
         var findResult = await collection.find().toList();
@@ -962,7 +962,7 @@ void main() async {
 
       test('Ordered Bulk - "One" method types - with error - 2', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany([
           {'_id': 1, 'char': 'Brisbane', 'class': 'monk', 'lvl': 4},
@@ -970,7 +970,7 @@ void main() async {
           {'_id': 3, 'char': 'Meldane', 'class': 'ranger', 'lvl': 3}
         ]);
 
-        var ret = await collection.bulkWrite([
+        var ret = await (collection.bulkWrite([
           {
             'insertOne': {
               'document': {
@@ -1015,7 +1015,7 @@ void main() async {
               'document': {'_id': 4, 'char': 'Amber', 'class': 'monk', 'lvl': 3}
             }
           },
-        ]);
+        ]) as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.operationSucceeded, isTrue);
@@ -1030,8 +1030,8 @@ void main() async {
         expect(ret.nMatched, 2);
         expect(ret.nRemoved, 1);
         expect(ret.ids, isNotNull);
-        expect(ret.ids.length, 2);
-        expect(ret.ids.first, 4);
+        expect(ret.ids!.length, 2);
+        expect(ret.ids!.first, 4);
         expect(ret.upserted, isEmpty);
         expect(ret.writeErrors.first.index, 0);
         expect(ret.writeErrors.first.operationInputIndex, 5);
@@ -1044,7 +1044,7 @@ void main() async {
       }, skip: cannotRunTests);
       test('Unordered Bulk - "One" method types - with error', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany([
           {'_id': 1, 'char': 'Brisbane', 'class': 'monk', 'lvl': 4},
@@ -1052,7 +1052,7 @@ void main() async {
           {'_id': 5, 'char': 'Meldane', 'class': 'ranger', 'lvl': 3}
         ]);
 
-        var ret = await collection.bulkWrite([
+        var ret = await (collection.bulkWrite([
           {
             'insertOne': {
               'document': {
@@ -1092,7 +1092,7 @@ void main() async {
               'replacement': {'char': 'Tanys', 'class': 'oracle', 'lvl': 4}
             }
           }
-        ], ordered: false);
+        ], ordered: false) as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.operationSucceeded, isTrue);
@@ -1107,8 +1107,8 @@ void main() async {
         expect(ret.nMatched, 2);
         expect(ret.nRemoved, 1);
         expect(ret.ids, isNotNull);
-        expect(ret.ids.length, 1);
-        expect(ret.ids.first, 4);
+        expect(ret.ids!.length, 1);
+        expect(ret.ids!.first, 4);
         expect(ret.upserted, isEmpty);
         expect(ret.writeErrors.first.index, 1);
         expect(ret.writeErrors.first.operationInputIndex, 1);
@@ -1122,7 +1122,7 @@ void main() async {
 
       test('Unordered Bulk - "One" method types - with error - 2', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany([
           {'_id': 1, 'char': 'Brisbane', 'class': 'monk', 'lvl': 4},
@@ -1130,7 +1130,7 @@ void main() async {
           {'_id': 3, 'char': 'Meldane', 'class': 'ranger', 'lvl': 3}
         ]);
 
-        var ret = await collection.bulkWrite([
+        var ret = await (collection.bulkWrite([
           {
             'insertOne': {
               'document': {
@@ -1175,7 +1175,7 @@ void main() async {
               'document': {'_id': 4, 'char': 'Amber', 'class': 'monk', 'lvl': 3}
             }
           },
-        ], ordered: false);
+        ], ordered: false) as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.operationSucceeded, isTrue);
@@ -1190,8 +1190,8 @@ void main() async {
         expect(ret.nMatched, 2);
         expect(ret.nRemoved, 1);
         expect(ret.ids, isNotNull);
-        expect(ret.ids.length, 2);
-        expect(ret.ids.first, 4);
+        expect(ret.ids!.length, 2);
+        expect(ret.ids!.first, 4);
         expect(ret.upserted, isEmpty);
         expect(ret.writeErrors.first.index, 2);
         expect(ret.writeErrors.first.operationInputIndex, 5);
@@ -1204,7 +1204,7 @@ void main() async {
       }, skip: cannotRunTests);
       test('Unordered Bulk - "One" method types', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany([
           {'_id': 1, 'char': 'Brisbane', 'class': 'monk', 'lvl': 4},
@@ -1212,7 +1212,7 @@ void main() async {
           {'_id': 3, 'char': 'Meldane', 'class': 'ranger', 'lvl': 3}
         ]);
 
-        var ret = await collection.bulkWrite([
+        var ret = await (collection.bulkWrite([
           {
             'insertOne': {
               'document': {
@@ -1252,7 +1252,7 @@ void main() async {
               'replacement': {'char': 'Tanys', 'class': 'oracle', 'lvl': 4}
             }
           }
-        ], ordered: false);
+        ], ordered: false) as FutureOr<BulkWriteResult>);
 
         expect(ret.ok, 1.0);
         expect(ret.operationSucceeded, isTrue);
@@ -1267,8 +1267,8 @@ void main() async {
         expect(ret.nMatched, 2);
         expect(ret.nRemoved, 1);
         expect(ret.ids, isNotNull);
-        expect(ret.ids.length, 1);
-        expect(ret.ids[0], 4);
+        expect(ret.ids!.length, 1);
+        expect(ret.ids![0], 4);
         expect(ret.upserted, isEmpty);
 
         var findResult = await collection.find().toList();
@@ -1280,7 +1280,7 @@ void main() async {
 
       test('Ordered Bulk Write with Write Concern', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany([
           {'_id': 1, 'char': 'goblin', 'rating': 1, 'encounter': 0.24},
@@ -1335,11 +1335,11 @@ void main() async {
             ));
 
         if (isStandalone) {
-          expect(ret.ok, 0.0);
+          expect(ret!.ok, 0.0);
           expect(ret.operationSucceeded, isFalse);
           expect(ret.errmsg, isNotEmpty);
         } else {
-          expect(ret.ok, 1.0);
+          expect(ret!.ok, 1.0);
           expect(ret.operationSucceeded, isTrue);
           expect(ret.isSuccess, isFalse);
           expect(ret.isSuspendedSuccess, isTrue);
@@ -1353,8 +1353,8 @@ void main() async {
           expect(ret.nMatched, 4);
           expect(ret.nRemoved, 1);
           expect(ret.ids, isNotNull);
-          expect(ret.ids.length, 1);
-          expect(ret.ids[0], 5);
+          expect(ret.ids!.length, 1);
+          expect(ret.ids![0], 5);
           expect(ret.upserted, isEmpty);
           var findResult = await collection.find().toList();
           expect(findResult.length, 4);
@@ -1365,7 +1365,7 @@ void main() async {
       }, skip: cannotRunTests);
       test('Unordered Bulk Write with Write Concern', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         await collection.insertMany([
           {'_id': 1, 'char': 'goblin', 'rating': 1, 'encounter': 0.24},
@@ -1420,11 +1420,11 @@ void main() async {
             ));
 
         if (isStandalone) {
-          expect(ret.ok, 0.0);
+          expect(ret!.ok, 0.0);
           expect(ret.operationSucceeded, isFalse);
           expect(ret.errmsg, isNotEmpty);
         } else {
-          expect(ret.ok, 1.0);
+          expect(ret!.ok, 1.0);
           expect(ret.operationSucceeded, isTrue);
           expect(ret.isSuccess, isFalse);
           expect(ret.isSuspendedSuccess, isTrue);
@@ -1438,8 +1438,8 @@ void main() async {
           expect(ret.nMatched, 4);
           expect(ret.nRemoved, 1);
           expect(ret.ids, isNotNull);
-          expect(ret.ids.length, 1);
-          expect(ret.ids[0], 5);
+          expect(ret.ids!.length, 1);
+          expect(ret.ids![0], 5);
           expect(ret.upserted, isEmpty);
           var findResult = await collection.find().toList();
           expect(findResult.length, 4);
@@ -1451,9 +1451,9 @@ void main() async {
     });
   });
   tearDownAll(() async {
-    await db.open();
+    await db!.open();
     await Future.forEach(usedCollectionNames,
-        (String collectionName) => db.collection(collectionName).drop());
-    await db.close();
+        (String collectionName) => db!.collection(collectionName).drop());
+    await db!.close();
   });
 }

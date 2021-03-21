@@ -3,15 +3,15 @@ import 'package:mongo_dart/src/database/utils/map_keys.dart';
 
 class LastErrorObject {
   /// Contains true if an update operation modified an existing document.
-  bool updatedExisting;
+  bool? updatedExisting;
 
   /// Contains the ObjectId of the inserted document if an update
   /// operation with upsert: true resulted in a new document.
-  ObjectId upserted;
+  ObjectId? upserted;
 
-  int n;
+  int? n;
 
-  LastErrorObject.fromMap(Map document) {
+  LastErrorObject.fromMap(Map? document) {
     if (document != null) {
       updatedExisting = document[keyUpdatedExisting];
       upserted = document[keyUpserted];

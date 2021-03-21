@@ -12,7 +12,7 @@ const DefaultUri = 'mongodb://$dbAddress:27017/$dbName';
 
 var throwsMongoDartError = throwsA((e) => e is MongoDartError);
 
-Db db;
+late Db db;
 Uuid uuid = Uuid();
 List<String> usedCollectionNames = [];
 

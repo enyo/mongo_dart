@@ -18,7 +18,7 @@ class ClientFirst extends SaslStep {
 
     Map<String, dynamic> decodedMessage = parsePayload(serverFirstMessage);
 
-    final r = decodedMessage['r'] as String;
+    final r = decodedMessage['r'] as String?;
     if (r == null || !r.startsWith(rPrefix)) {
       throw MongoDartError('Server sent an invalid nonce.');
     }
@@ -153,11 +153,11 @@ class ScramSha1Mechanism extends SaslMechanism {
   ScramSha1Mechanism(this.credential, this.randomStringGenerator);
 
   @override
-  SaslStep initialize(Connection connection) {
+  SaslStep initialize(Connection? connection) {
     if (connection == null) throw ArgumentError("Connection can't be null");
 
     final gs2Header = 'n,,';
-    var username = 'n=${prepUsername(credential.username)}';
+    var username = 'n=${prepUsername(credential.username!)}';
     var r = randomStringGenerator.generate(20); // TODO Change this
 
     var nonce = 'r=$r';

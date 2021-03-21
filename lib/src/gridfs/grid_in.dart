@@ -1,21 +1,21 @@
 part of mongo_dart;
 
 class GridIn extends GridFSFile {
-  Stream<List<int>> input;
+  late Stream<List<int>?> input;
   bool savedChunks = false;
   int currentChunkNumber = 0;
   int currentBufferPosition = 0;
   int totalBytes = 0;
   @override
-  GridFS fs;
+  GridFS? fs;
   @override
-  String filename;
+  String? filename;
 
   ///TODO Review that code. Currently it sums all file's content in one (potentially big) List, to get MD5 hash
   /// Probably we should use some Stream api here
   List<int> contentToDigest = <int>[];
   GridIn(this.fs,
-      [String filename, Stream<List<int>> inputStream]) {
+      [String? filename, Stream<List<int>> inputStream]) {
     id = ObjectId();
     chunkSize = GridFS.DEFAULT_CHUNKSIZE;
     input = ChunkHandler(chunkSize).transformer.bind(inputStream);
@@ -24,12 +24,12 @@ class GridIn extends GridFSFile {
   }
 
   @override
-  Future<Map<String, dynamic>> save([int chunkSize]) {
+  Future<Map<String, dynamic>> save([int? chunkSize]) {
     chunkSize ??= this.chunkSize;
 
     Future<Map<String, dynamic>> result;
     if (!savedChunks) {
-      result = saveChunks(chunkSize);
+      result = saveChunks(chunkSize!);
     } else {
       result = Future.value({'ok': 1.0});
     }
@@ -48,7 +48,7 @@ class GridIn extends GridFSFile {
       });
     }
 
-    chunkSize ??= this.chunkSize;
+    chunkSize ??= this.chunkSize!;
     if (savedChunks) {
       throw MongoDartError('chunks already saved!');
     }
@@ -57,7 +57,7 @@ class GridIn extends GridFSFile {
           'chunkSize must be greater than zero and less than or equal to GridFS.MAX_CHUNKSIZE');
     }
     input.listen((data) {
-      futures.add(dumpBuffer(data));
+      futures.add(dumpBuffer(data!));
     }, onDone: _onDone);
     return completer.future;
   }
@@ -80,7 +80,7 @@ class GridIn extends GridFSFile {
     contentToDigest.addAll(writeBuffer);
     currentBufferPosition = 0;
 
-    return fs.chunks.insert(chunk);
+    return fs!.chunks.insert(chunk);
   }
 
   Future finishData() {

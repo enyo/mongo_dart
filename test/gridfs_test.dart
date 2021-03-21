@@ -9,7 +9,7 @@ import 'package:uuid/uuid.dart';
 
 const dbName = 'testauth';
 const DefaultUri = 'mongodb://localhost:27017/test-mongo-dart';
-Db db;
+Db? db;
 
 Uuid uuid = Uuid();
 List<String> usedCollectionNames = [];
@@ -112,13 +112,13 @@ Future tesSomeChunks() async {
   return testInOut(data, gridFS);
 }
 
-Future<List<int>> getInitialState(GridFS gridFS) {
-  var completer = Completer<List<int>>();
+Future<List<int?>> getInitialState(GridFS gridFS) {
+  Completer<List<int?>> completer = Completer<List<int>>();
   var futures = <Future<int>>[];
   futures.add(gridFS.files.count());
   futures.add(gridFS.chunks.count());
   Future.wait(futures).then((List<int> futureResults) {
-    var result = List<int>(2);
+    var result = List<int?>(2);
     result[0] = futureResults[0].toInt();
     result[1] = futureResults[1].toInt();
     completer.complete(result);
@@ -127,7 +127,7 @@ Future<List<int>> getInitialState(GridFS gridFS) {
 }
 
 Future testInOut(List<int> data, GridFS gridFS,
-    [Map<String, dynamic> extraData]) async {
+    [Map<String, dynamic>? extraData]) async {
   var consumer = MockConsumer();
   var out = IOSink(consumer);
   await getInitialState(gridFS);
@@ -215,11 +215,11 @@ Future testExtraData() {
 void main() {
   Future initializeDatabase() async {
     db = Db(DefaultUri);
-    await db.open();
+    await db!.open();
   }
 
   Future cleanupDatabase() async {
-    await db.close();
+    await db!.close();
   }
 
   setUp(() async {
@@ -245,9 +245,9 @@ void main() {
   });
 
   tearDownAll(() async {
-    await db.open();
+    await db!.open();
     await Future.forEach(usedCollectionNames,
-        (String collectionName) => db.collection(collectionName).drop());
-    await db.close();
+        (String collectionName) => db!.collection(collectionName).drop());
+    await db!.close();
   });
 }

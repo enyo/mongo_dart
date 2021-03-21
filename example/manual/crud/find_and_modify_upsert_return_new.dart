@@ -6,7 +6,7 @@ const dbAddress = '127.0.0.1';
 const DefaultUri = 'mongodb://$dbAddress:27017/$dbName';
 
 void main() async {
-  Db db;
+  late Db db;
 
   Future initializeDatabase() async {
     db = Db(DefaultUri);
@@ -19,7 +19,7 @@ void main() async {
 
   await initializeDatabase();
   if (db.masterConnection == null ||
-      !db.masterConnection.serverCapabilities.supportsOpMsg) {
+      !db.masterConnection!.serverCapabilities.supportsOpMsg) {
     return;
   }
 
@@ -50,7 +50,7 @@ void main() async {
   print('Updated document: ${res.lastErrorObject.updatedExisting}'); // false
   print('Upserted _id -> ${res.lastErrorObject.upserted}'); // An ObjectId
 
-  print('Upserted document name: "${res.value['name']}"'); // 'Gus'
+  print('Upserted document name: "${res.value!['name']}"'); // 'Gus'
 
   await cleanupDatabase();
 }

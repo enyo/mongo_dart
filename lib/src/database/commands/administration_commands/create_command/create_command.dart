@@ -27,9 +27,9 @@ import 'create_options.dart';
 ///   An alternative way to creteOptions to specify command options
 ///   (must be manually set)
 class CreateCommand extends CommandOperation {
-  CreateCommand(Db db, String name,
-      {CreateOptions createOptions, Map<String, Object> rawOptions})
-      : super(db, <String, Object>{
+  CreateCommand(Db? db, String name,
+      {CreateOptions? createOptions, Map<String, Object?>? rawOptions})
+      : super(db, <String, Object?>{
           ...?createOptions?.getOptions(db),
           ...?rawOptions
         }, command: <String, Object>{

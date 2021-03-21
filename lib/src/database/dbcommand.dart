@@ -8,7 +8,7 @@ class DbCommand extends MongoQueryMessage {
   static final SYSTEM_USER_COLLECTION = 'system.users';
   static final SYSTEM_COMMAND_COLLECTION = '\$cmd';
 
-  Db db;
+  Db? db;
   DbCommand(
       this.db,
       String collectionName,
@@ -16,20 +16,20 @@ class DbCommand extends MongoQueryMessage {
       int numberToSkip,
       int numberToReturn,
       Map<String, dynamic> query,
-      Map<String, dynamic> fields)
+      Map<String, dynamic>? fields)
       : super(collectionName, flags, numberToSkip, numberToReturn, query,
             fields) {
-    _collectionFullName = BsonCString('${db.databaseName}.$collectionName');
+    _collectionFullName = BsonCString('${db!.databaseName}.$collectionName');
   }
 
   static DbCommand createFindAndModifyCommand(Db db, String collectionName,
-      {Map<String, dynamic> query,
-      Map<String, dynamic> sort,
-      bool remove,
-      Map<String, dynamic> update,
-      bool returnNew,
-      Map<String, dynamic> fields,
-      bool upsert}) {
+      {Map<String, dynamic>? query,
+      Map<String, dynamic>? sort,
+      bool? remove,
+      Map<String, dynamic>? update,
+      bool? returnNew,
+      Map<String, dynamic>? fields,
+      bool? upsert}) {
     Map command = <String, dynamic>{'findandmodify': collectionName};
     if (query != null) {
       command['query'] = query;
@@ -53,7 +53,7 @@ class DbCommand extends MongoQueryMessage {
       command['upsert'] = upsert;
     }
     return DbCommand(db, SYSTEM_COMMAND_COLLECTION,
-        MongoQueryMessage.OPTS_NO_CURSOR_TIMEOUT, 0, -1, command, null);
+        MongoQueryMessage.OPTS_NO_CURSOR_TIMEOUT, 0, -1, command as Map<String, dynamic>, null);
   }
 
   static DbCommand createDropCollectionCommand(Db db, String collectionName) {
@@ -67,7 +67,7 @@ class DbCommand extends MongoQueryMessage {
         null);
   }
 
-  static DbCommand createDropDatabaseCommand(Db db) {
+  static DbCommand createDropDatabaseCommand(Db? db) {
     return DbCommand(
         db,
         SYSTEM_COMMAND_COLLECTION,
@@ -78,7 +78,7 @@ class DbCommand extends MongoQueryMessage {
         null);
   }
 
-  static DbCommand createQueryDbCommand(Db db, Map<String, dynamic> command) {
+  static DbCommand createQueryDbCommand(Db? db, Map<String, dynamic> command) {
     return DbCommand(db, SYSTEM_COMMAND_COLLECTION,
         MongoQueryMessage.OPTS_NO_CURSOR_TIMEOUT, 0, 1, command, null);
   }
@@ -100,7 +100,7 @@ class DbCommand extends MongoQueryMessage {
         null);
   }
 
-  static DbCommand createPingCommand(Db db) {
+  static DbCommand createPingCommand(Db? db) {
     return createQueryDbCommand(db, {'ping': 1});
   }
 
@@ -138,7 +138,7 @@ class DbCommand extends MongoQueryMessage {
   }
 
   static DbCommand createSaslContinueCommand(
-      Db db, int conversationId, Uint8List bytesToSendToServer) {
+      Db db, int? conversationId, Uint8List bytesToSendToServer) {
     var command = {
       'saslContinue': 1,
       'conversationId': conversationId,
@@ -164,12 +164,12 @@ class DbCommand extends MongoQueryMessage {
 
   static DbCommand createAggregateCommand(
       Db db, String collectionName, List pipeline,
-      {bool allowDiskUse = false, Map<String, dynamic> cursor}) {
+      {bool allowDiskUse = false, Map<String, dynamic>? cursor}) {
     var query = {'aggregate': collectionName, 'pipeline': pipeline};
 
     if (cursor != null) query['cursor'] = cursor;
 
-    if (db._masterConnection.serverCapabilities.aggregationCursor) {
+    if (db._masterConnection!.serverCapabilities.aggregationCursor) {
       query['allowDiskUse'] = allowDiskUse;
     }
 
@@ -177,7 +177,7 @@ class DbCommand extends MongoQueryMessage {
         MongoQueryMessage.OPTS_NO_CURSOR_TIMEOUT, 0, -1, query, null);
   }
 
-  static DbCommand createIsMasterCommand(Db db) {
+  static DbCommand createIsMasterCommand(Db? db) {
     return createQueryDbCommand(db, {'ismaster': 1});
   }
 }

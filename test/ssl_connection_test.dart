@@ -27,12 +27,12 @@ void main() {
   group('Dns lookup', () {
     test('Testing connection TXT', () async {
       var records =
-          await DnsUtils.lookupRecord('rs.joedrumgoole.com', RRecordType.TXT);
+          await (DnsUtils.lookupRecord('rs.joedrumgoole.com', RRecordType.TXT) as FutureOr<List<RRecord>>);
       expect(records.first.data, '"authSource=admin&replicaSet=srvdemo"');
     });
     test('Testing connection SRV', () async {
-      var records = await DnsUtils.lookupRecord(
-          '_mongodb._tcp.' 'rs.joedrumgoole.com', RRecordType.SRV);
+      var records = await (DnsUtils.lookupRecord(
+          '_mongodb._tcp.' 'rs.joedrumgoole.com', RRecordType.SRV) as FutureOr<List<RRecord>>);
 
       expect(records.first.data, '0 0 27022 rs1.joedrumgoole.com.');
       expect(records[1].data, '0 0 27022 rs2.joedrumgoole.com.');

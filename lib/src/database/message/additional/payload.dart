@@ -5,13 +5,13 @@ abstract class Payload {
 
   int get byteLength;
 
-  Map<String, Object> get content;
+  Map<String, Object?> get content;
 }
 
 class Payload0 extends Payload {
   BsonMap document;
 
-  Payload0(Map<String, Object> document) : document = BsonMap(document);
+  Payload0(Map<String, Object?> document) : document = BsonMap(document);
 
   Payload0.fromBuffer(BsonBinary buffer)
       : document = BsonMap(<String, Object>{})
@@ -24,13 +24,13 @@ class Payload0 extends Payload {
   int get byteLength => document.byteLength();
 
   @override
-  Map<String, Object> get content => document.data;
+  Map<String, Object?> get content => document.data;
 }
 
 class Payload1 extends Payload {
-  int _length;
+  int? _length;
   final BsonCString identifier;
-  List<BsonMap> _documents;
+  late List<BsonMap> _documents;
 
   Payload1(String identifier, List<Map<String, Object>> documents)
       : identifier = BsonCString(identifier),
@@ -40,7 +40,7 @@ class Payload1 extends Payload {
       : _length = (buffer..makeByteList()).readInt32(),
         identifier = BsonCString(buffer.readCString()) {
     _documents =
-        _decodeBsonMapList(buffer, _length - 4 - identifier.byteLength());
+        _decodeBsonMapList(buffer, _length! - 4 - identifier.byteLength());
   }
 
   @override
@@ -77,8 +77,8 @@ List<BsonMap> _createBsonMapList(List<Map<String, Object>> documents) {
   return _documents;
 }
 
-List<Map<String, Object>> _extractBsonMapList(List<BsonMap> documents) {
-  var _documents = <Map<String, Object>>[];
+List<Map<String, Object?>> _extractBsonMapList(List<BsonMap> documents) {
+  List<Map<String, Object?>> _documents = <Map<String, Object>>[];
   for (var document in documents) {
     _documents.add(document.data);
   }

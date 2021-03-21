@@ -42,27 +42,27 @@ class ReadPreference {
       ReadPreference(ReadPreferenceMode.secondaryPreferred);
   static ReadPreference nearest = ReadPreference(ReadPreferenceMode.nearest);
 
-  static int getMaxStalenessSeconds(Map<String, Object> options) {
+  static int? getMaxStalenessSeconds(Map<String, Object?>? options) {
     if (options == null) {
       return null;
     }
     if (options[keyMaxStalenessSecond] != null) {
       if (options[keyMaxStalenessSecond] is! int ||
-          options[keyMaxStalenessSecond] as int < 0) {
+          (options[keyMaxStalenessSecond] as int) < 0) {
         throw ArgumentError('maxStalenessSeconds must be a positive integer');
       }
-      return options[keyMaxStalenessSecond] as int;
+      return options[keyMaxStalenessSecond] as int?;
     }
     return null;
   }
 
-  static int getMinWireVersion(Map<String, Object> options) {
+  static int? getMinWireVersion(Map<String, Object?>? options) {
     if (options == null) {
       return null;
     }
     if (options[keyMaxStalenessSecond] != null) {
       if (options[keyMaxStalenessSecond] is! int ||
-          options[keyMaxStalenessSecond] as int < 0) {
+          (options[keyMaxStalenessSecond] as int) < 0) {
         throw ArgumentError('maxStalenessSeconds must be a positive integer');
       }
       // NOTE: The minimum required wire version is 5 for this read preference. If the existing
@@ -72,22 +72,22 @@ class ReadPreference {
     return null;
   }
 
-  final ReadPreferenceMode mode;
-  final List tags;
+  final ReadPreferenceMode? mode;
+  final List? tags;
   final Map options;
-  final int maxStalenessSeconds;
-  final int minWireVersion;
+  final int? maxStalenessSeconds;
+  final int? minWireVersion;
 
   @Deprecated('Support the deprecated `preference` property '
       'introduced in the porcelain layer')
-  ReadPreferenceMode get preference => mode;
+  ReadPreferenceMode? get preference => mode;
 
-  ReadPreference([this.mode, this.tags, Map<String, Object> options])
+  ReadPreference([this.mode, this.tags, Map<String, Object?>? options])
       : options = options ?? <String, Object>{},
         maxStalenessSeconds = getMaxStalenessSeconds(options),
         minWireVersion = getMinWireVersion(options) {
     if (mode == ReadPreferenceMode.primary) {
-      if (tags != null && tags.isNotEmpty) {
+      if (tags != null && tags!.isNotEmpty) {
         throw ArgumentError(
             'Primary read preference cannot be combined with tags');
       }
@@ -99,19 +99,19 @@ class ReadPreference {
     }
   }
 
-  factory ReadPreference.fromOptions(Map<String, Object> options) {
+  factory ReadPreference.fromOptions(Map<String, Object?>? options) {
     if (options == null || options[keyReadPreference] == null) {
       return null;
     }
     dynamic readPreference = options[keyReadPreference];
     if (readPreference is ReadPreferenceMode) {
       return ReadPreference(
-          readPreference, options[keyReadPreferenceTags] as List);
+          readPreference, options[keyReadPreferenceTags] as List?);
     } else if (readPreference is Map) {
-      var mode = (readPreference[keyMode] as ReadPreferenceMode) ??
-          (readPreference[keyPreference] as ReadPreferenceMode);
+      var mode = (readPreference[keyMode] as ReadPreferenceMode?) ??
+          (readPreference[keyPreference] as ReadPreferenceMode?);
       if (mode != null) {
-        return ReadPreference(mode, readPreference[keyTags] as List,
+        return ReadPreference(mode, readPreference[keyTags] as List?,
             {keyMaxStalenessSecond: readPreference[keyMaxStalenessSecond]});
       }
     } else if (options[keyReadPreference] is ReadPreference) {
@@ -139,8 +139,8 @@ class ReadPreference {
   @override
   int get hashCode => mode.hashCode;
 
-  Map<String, Object> toJSON() {
-    var readPreference = <String, Object>{
+  Map<String, Object?> toJSON() {
+    var readPreference = <String, Object?>{
       keyMode: '$mode'.replaceFirst('ReadPreferenceMode.', '')
     };
     if (tags != null) {
@@ -161,12 +161,12 @@ class ReadPreference {
 /// preference, used for determining the inherited read preference.
 /// @param {Object} options The options passed into the method, potentially containing a read preference
 /// @returns {(ReadPreference|null)} The resolved read preference
-ReadPreference resolveReadPreference(parent, Map<String, Object> options,
-    {bool inheritReadPreference}) {
+ReadPreference? resolveReadPreference(parent, Map<String, Object?>? options,
+    {bool? inheritReadPreference}) {
   options ??= {};
   inheritReadPreference ??= true;
 
-  ReadPreference inheritedReadPreference;
+  ReadPreference? inheritedReadPreference;
 
   if (inheritReadPreference) {
     if (parent is DbCollection) {
@@ -179,7 +179,7 @@ ReadPreference resolveReadPreference(parent, Map<String, Object> options,
   }*/
   }
 
-  ReadPreference readPreference;
+  ReadPreference? readPreference;
   if (options[keyReadPreference] != null) {
     readPreference = ReadPreference.fromOptions(options);
   } // Todo session Class not yet implemented

@@ -1,9 +1,9 @@
 part of mongo_dart;
 
 class MongoInsertMessage extends MongoMessage {
-  BsonCString _collectionFullName;
+  late BsonCString _collectionFullName;
   int flags;
-  List<BsonMap> _documents;
+  late List<BsonMap> _documents;
   MongoInsertMessage(
       String collectionFullName, List<Map<String, dynamic>> documents,
       [this.flags = 0]) {

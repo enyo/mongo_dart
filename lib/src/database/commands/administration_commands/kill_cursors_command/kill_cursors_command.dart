@@ -26,14 +26,14 @@ import 'kill_cursors_result.dart';
 /// * killCursorsOptions [KillCursorsOptions] - Optional
 ///   - a set of optional values for the command
 class KillCursorsCommand extends CommandOperation {
-  KillCursorsCommand(DbCollection collection, List<BsonLong> cursorIds,
-      {Db db,
-      KillCursorsOptions killCursorsOptions,
-      Map<String, Object> rawOptions})
+  KillCursorsCommand(DbCollection? collection, List<BsonLong> cursorIds,
+      {Db? db,
+      KillCursorsOptions? killCursorsOptions,
+      Map<String, Object?>? rawOptions})
       : super(db ?? collection?.db,
-            <String, Object>{...?killCursorsOptions?.options, ...?rawOptions},
+            <String, Object?>{...?killCursorsOptions?.options, ...?rawOptions},
             collection: collection,
-            command: <String, Object>{
+            command: <String, Object?>{
               keyKillCursors: collection?.collectionName,
               keyCursors: cursorIds,
             }) {

@@ -9,7 +9,7 @@ class MongoMessageHandler {
       EventSink<MongoResponseMessage> sink) {
     converter.addPacket(data);
     while (!converter.messages.isEmpty) {
-      var buffer = BsonBinary.from(converter.messages.removeFirst());
+      var buffer = BsonBinary.from(converter.messages.removeFirst() as Iterable<int>);
       var opcodeFromWire = MongoResponseMessage.extractOpcode(buffer);
       MongoResponseMessage reply;
       if (opcodeFromWire == MongoMessage.Reply) {

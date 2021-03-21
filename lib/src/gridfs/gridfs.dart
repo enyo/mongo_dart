@@ -4,14 +4,14 @@ class GridFS {
   static int DEFAULT_CHUNKSIZE = 256 * 1024;
   static int MAX_CHUNKSIZE = (3.5 * 1000 * 1000).toInt();
 
-  Db database;
-  DbCollection files;
-  DbCollection chunks;
-  String bucketName;
+  Db? database;
+  late DbCollection files;
+  late DbCollection chunks;
+  late String bucketName;
 
   GridFS(this.database, [String collection = 'fs']) {
-    files = database.collection('$collection.files');
-    chunks = database.collection('$collection.chunks');
+    files = database!.collection('$collection.files');
+    chunks = database!.collection('$collection.chunks');
     bucketName = collection;
 
     // TODO(tsander): Ensure index.
@@ -24,7 +24,7 @@ class GridFS {
   Future<GridOut> findOne(selector) {
     var completer = Completer<GridOut>();
     files.findOne(selector).then((file) {
-      GridOut result;
+      GridOut? result;
       if (file != null) {
         result = GridOut(file);
         result.setGridFS(this);

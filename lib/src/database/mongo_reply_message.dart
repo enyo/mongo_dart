@@ -7,11 +7,11 @@ class MongoReplyMessage extends MongoResponseMessage {
   static final FLAGS_SHARD_CONFIGSTALE = 4;
   static final FLAGS_AWAIT_CAPABLE = 8;
 
-  int responseFlags;
+  int? responseFlags;
   int cursorId = -1; // 64bit integer
-  int startingFrom;
+  int? startingFrom;
   int numberReturned = -1;
-  List<Map<String, dynamic>> documents;
+  late List<Map<String, dynamic>?> documents;
 
   @override
   MongoMessage deserialize(BsonBinary buffer) {

@@ -4,10 +4,10 @@ import 'package:mongo_dart/src/database/commands/mixin/timing_result.dart';
 import 'package:mongo_dart/src/database/utils/map_keys.dart';
 
 class AggregateResult with BasicResult, TimingResult {
-  AggregateResult(Map<String, Object> document) {
+  AggregateResult(Map<String, Object?> document) {
     extractBasic(document);
-    cursor = CursorResult(document[keyCursor]);
+    cursor = CursorResult(document[keyCursor] as Map<String, Object>?);
     extractTiming(document);
   }
-  CursorResult cursor;
+  CursorResult? cursor;
 }

@@ -4,18 +4,18 @@ import 'package:mongo_dart/src/database/commands/parameters/collation_options.da
 import 'package:mongo_dart/src/database/utils/update_document_check.dart';
 
 class ReplaceOneStatement extends UpdateStatement {
-  ReplaceOneStatement(Map<String, Object> q, Object u,
-      {bool upsert,
-      CollationOptions collation,
-      String hint,
-      Map<String, Object> hintDocument})
+  ReplaceOneStatement(Map<String, Object> q, Object? u,
+      {bool? upsert,
+      CollationOptions? collation,
+      String? hint,
+      Map<String, Object>? hintDocument})
       : super(q, u,
             upsert: upsert,
             multi: false,
             collation: collation,
             hint: hint,
             hintDocument: hintDocument) {
-    if (!isPureDocument(u)) {
+    if (!isPureDocument(u as Map<String, dynamic>?)) {
       throw MongoDartError('Invalid document in ReplaceOneStatement. '
           'The document is either null or contains update operators');
     }

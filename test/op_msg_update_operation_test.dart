@@ -19,7 +19,7 @@ const DefaultUri = 'mongodb://$dbAddress:27017/$dbName';
 
 final Matcher throwsMongoDartError = throwsA(TypeMatcher<MongoDartError>());
 
-Db db;
+Db? db;
 Uuid uuid = Uuid();
 List<String> usedCollectionNames = [];
 
@@ -32,11 +32,11 @@ String getRandomCollectionName() {
 void main() async {
   Future initializeDatabase() async {
     db = Db(DefaultUri);
-    await db.open();
+    await db!.open();
   }
 
   Future cleanupDatabase() async {
-    await db.close();
+    await db!.close();
   }
 
   group('Helper functions', () {
@@ -46,8 +46,8 @@ void main() async {
         r'$unset': {'status': ''}
       };
 
-      expect(containsOnlyUpdateOperators(testDocument), isTrue);
-      expect(isPureDocument(testDocument), isFalse);
+      expect(containsOnlyUpdateOperators(testDocument as Map<String, dynamic>?), isTrue);
+      expect(isPureDocument(testDocument as Map<String, dynamic>?), isFalse);
     });
     test('Check replace document', () {
       Map testDocument = <String, dynamic>{
@@ -56,8 +56,8 @@ void main() async {
         'name': 'Ethan'
       };
 
-      expect(containsOnlyUpdateOperators(testDocument), isFalse);
-      expect(isPureDocument(testDocument), isTrue);
+      expect(containsOnlyUpdateOperators(testDocument as Map<String, dynamic>?), isFalse);
+      expect(isPureDocument(testDocument as Map<String, dynamic>?), isTrue);
     });
     test('Check null document', () {
       expect(containsOnlyUpdateOperators(null), isFalse);
@@ -65,8 +65,8 @@ void main() async {
     });
     test('Check empty document', () {
       Map testDocument = <String, dynamic>{};
-      expect(containsOnlyUpdateOperators(testDocument), isFalse);
-      expect(isPureDocument(testDocument), isFalse);
+      expect(containsOnlyUpdateOperators(testDocument as Map<String, dynamic>?), isFalse);
+      expect(isPureDocument(testDocument as Map<String, dynamic>?), isFalse);
     });
   });
 
@@ -80,8 +80,8 @@ void main() async {
     var isSharded = false;
     setUp(() async {
       await initializeDatabase();
-      if (db.masterConnection == null ||
-          !db.masterConnection.serverCapabilities.supportsOpMsg) {
+      if (db!.masterConnection == null ||
+          !db!.masterConnection!.serverCapabilities.supportsOpMsg) {
         cannotRunTests = true;
       }
       var serverFcv = db?.masterConnection?.serverCapabilities?.fcv ?? '0.0';
@@ -106,7 +106,7 @@ void main() async {
     group('Update', () {
       test('Update specific fields on one document', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -151,7 +151,7 @@ void main() async {
       });
       test('Update specific fields on multiple documents', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -195,7 +195,7 @@ void main() async {
 
       test('Update document on multiple documents - error', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -244,7 +244,7 @@ void main() async {
 
       test('Replace one document', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {'_id': 1, 'name': 'Central Perk Cafe', 'Borough': 'Manhattan'},
@@ -290,7 +290,7 @@ void main() async {
           return;
         }
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -344,7 +344,7 @@ void main() async {
           return;
         }
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -422,7 +422,7 @@ void main() async {
 
       test('Bulk Update', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await insertMembers(collection);
         expect(ret.ok, 1.0);
@@ -463,7 +463,7 @@ void main() async {
 
       test('Specify collation', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await insertFrenchCafe(collection);
         expect(ret.ok, 1.0);
@@ -490,7 +490,7 @@ void main() async {
       test('Array filters - Update elements Match arrayFilters Criteria',
           () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -533,7 +533,7 @@ void main() async {
       test('Array filters - Update Specific Elements of an Array of Documents',
           () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -580,7 +580,7 @@ void main() async {
           return;
         }
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await insertMembers(collection);
         expect(ret.ok, 1.0);
@@ -613,7 +613,7 @@ void main() async {
     group('Update - wrapper', () {
       test('Update specific fields on one document', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -656,7 +656,7 @@ void main() async {
 
       test('Update specific fields on multiple documents', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -696,7 +696,7 @@ void main() async {
       });
       test('Replace one document', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {'_id': 1, 'name': 'Central Perk Cafe', 'Borough': 'Manhattan'},
@@ -736,7 +736,7 @@ void main() async {
           return;
         }
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -788,7 +788,7 @@ void main() async {
           return;
         }
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -864,7 +864,7 @@ void main() async {
 
       test('Specify collation', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await insertFrenchCafe(collection);
         expect(ret.ok, 1.0);
@@ -889,7 +889,7 @@ void main() async {
       test('Array filters - Update elements Match arrayFilters Criteria',
           () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -930,7 +930,7 @@ void main() async {
       test('Array filters - Update Specific Elements of an Array of Documents',
           () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -975,7 +975,7 @@ void main() async {
           return;
         }
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await insertMembers(collection);
         expect(ret.ok, 1.0);
@@ -1007,7 +1007,7 @@ void main() async {
     group('Update - Modern Collection helper', () {
       test('Update specific fields on one document', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -1048,7 +1048,7 @@ void main() async {
       });
       test('Update specific fields on one document', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -1089,7 +1089,7 @@ void main() async {
       });
       test('Update specific fields on multiple documents', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -1135,7 +1135,7 @@ void main() async {
           return;
         }
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -1189,7 +1189,7 @@ void main() async {
           return;
         }
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -1268,7 +1268,7 @@ void main() async {
 
       test('Specify collation', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await insertFrenchCafe(collection);
         expect(ret.ok, 1.0);
@@ -1295,7 +1295,7 @@ void main() async {
       test('Array filters - Update elements Match arrayFilters Criteria',
           () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -1338,7 +1338,7 @@ void main() async {
       test('Array filters - Update Specific Elements of an Array of Documents',
           () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -1387,7 +1387,7 @@ void main() async {
           return;
         }
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await insertMembers(collection);
         expect(ret.ok, 1.0);
@@ -1419,7 +1419,7 @@ void main() async {
         () {
       test(' Update specific fields on one document', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -1460,7 +1460,7 @@ void main() async {
       });
       test('Update one document - error', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {'_id': 1, 'name': 'Central Perk Cafe', 'Borough': 'Manhattan'},
@@ -1491,7 +1491,7 @@ void main() async {
 
       test('Update specific fields on multiple documents', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -1533,7 +1533,7 @@ void main() async {
       });
       test('Set new document on multiple documents - error', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -1572,9 +1572,9 @@ void main() async {
         expect(res.isFailure, isTrue);
         expect(res.hasWriteErrors, isTrue);
         if (isSharded && running4_2orGreater) {
-          expect(res.writeError.code, 72);
+          expect(res.writeError!.code, 72);
         } else {
-          expect(res.writeError.code, 9);
+          expect(res.writeError!.code, 9);
         }
 
         var elements = await collection.find(where).toList();
@@ -1588,7 +1588,7 @@ void main() async {
 
       test('Replace one document', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {'_id': 1, 'name': 'Central Perk Cafe', 'Borough': 'Manhattan'},
@@ -1632,7 +1632,7 @@ void main() async {
 
       test('Replace one - document with update operators - error', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {'_id': 1, 'name': 'Central Perk Cafe', 'Borough': 'Manhattan'},
@@ -1663,7 +1663,7 @@ void main() async {
           return;
         }
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -1716,7 +1716,7 @@ void main() async {
           return;
         }
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -1794,7 +1794,7 @@ void main() async {
 
       test('Specify collation', () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await insertFrenchCafe(collection);
         expect(ret.ok, 1.0);
@@ -1821,7 +1821,7 @@ void main() async {
       test('Array filters - Update elements Match arrayFilters Criteria',
           () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -1863,7 +1863,7 @@ void main() async {
       test('Array filters - Update Specific Elements of an Array of Documents',
           () async {
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await collection.insertMany([
           {
@@ -1911,7 +1911,7 @@ void main() async {
           return;
         }
         var collectionName = getRandomCollectionName();
-        var collection = db.collection(collectionName);
+        var collection = db!.collection(collectionName);
 
         var ret = await insertMembers(collection);
         expect(ret.ok, 1.0);
